@@ -7,7 +7,9 @@ import json
 import os
 from datetime import datetime
 from typing import Dict, List, Tuple # type: ignore
-import numpy as np 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages 
 
 class GradeCategory:
     """Represents a grading category with weight"""
