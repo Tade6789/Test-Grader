@@ -241,6 +241,28 @@ class TestGraderV12:
         
         print()
     
+    def save_grade_report(self, score, letter_grade, gpa, name="", subject="", timestamp=None):
+        """Save grade report to grade_history.txt file"""
+        try:
+            if timestamp is None:
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            filename = "grade_history.txt"
+            with open(filename, "a", encoding="utf-8") as f:
+                f.write(f"\n{'='*60}\n")
+                f.write(f"Test Grader v12.0.0 - Grade Report\n")
+                f.write(f"Timestamp: {timestamp}\n")
+                f.write(f"{'='*60}\n")
+                f.write(f"Student: {name or 'Anonymous'}\n")
+                f.write(f"Subject: {subject or 'General'}\n")
+                f.write(f"Score: {score:.2f}/100\n")
+                f.write(f"Letter Grade: {letter_grade}\n")
+                f.write(f"GPA: {gpa:.2f}/4.00\n")
+                f.write(f"{'='*60}\n\n")
+            return True
+        except Exception as e:
+            print(f"{Colors.FAIL}Error saving to file: {e}{Colors.ENDC}")
+            return False
+    
     def run(self):
         """Main application loop"""
         self.print_banner()
@@ -253,10 +275,11 @@ class TestGraderV12:
             print("3. Export grades to CSV")
             print("4. Export grades to JSON")
             print("5. View all grades")
-            print("6. Clear session")
-            print("7. Exit")
+            print("6. View grade history (from file)")
+            print("7. Clear session")
+            print("8. Exit")
             
-            choice = input(f"\n{Colors.OKBLUE}Select option (1-7):{Colors.ENDC} ").strip()
+            choice = input(f"\n{Colors.OKBLUE}Select option (1-8):{Colors.ENDC} ").strip()
             
             if choice == "1":
                 # Grade a new test
@@ -288,6 +311,10 @@ class TestGraderV12:
                     self.display_advanced_visualization(grade, letter_grade)
                     
                     print(f"\n{Colors.OKGREEN}✓ Grade recorded successfully!{Colors.ENDC}")
+                    
+                    # Save to grade_history.txt
+                    if self.save_grade_report(grade, letter_grade, gpa, name, subject):
+                        print(f"{Colors.OKGREEN}✓ Grade saved to grade_history.txt!{Colors.ENDC}")
                 
             elif choice == "2":
                 self.display_analytics_dashboard()
@@ -316,13 +343,25 @@ class TestGraderV12:
                         print(f"{i}. {g['name']} | {g['subject']} | Score: {g['score']:.1f} | Grade: {g['letter_grade']}")
                 else:
                     print(f"{Colors.WARNING}No grades recorded yet.{Colors.ENDC}")
-                    
+            
             elif choice == "6":
+                # View grade history from file
+                try:
+                    with open("grade_history.txt", "r", encoding="utf-8") as f:
+                        print("\n" + Colors.BOLD + "📚 GRADE HISTORY (from file)" + Colors.ENDC)
+                        print("─" * 65)
+                        print(f.read())
+                        input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
+                except FileNotFoundError:
+                    print(f"{Colors.WARNING}No grade history file found yet.{Colors.ENDC}")
+                    input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
+                    
+            elif choice == "7":
                 self.all_grades.clear()
                 self.print_banner()
                 print(f"{Colors.OKGREEN}✓ Session cleared!{Colors.ENDC}")
                 
-            elif choice == "7":
+            elif choice == "8":
                 session_duration = datetime.now() - self.session_start
                 print(f"\n{Colors.OKGREEN}Thank you for using Test Grader v12.0.0!{Colors.ENDC}")
                 print(f"Session Duration: {session_duration}")

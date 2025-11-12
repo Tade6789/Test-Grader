@@ -148,6 +148,28 @@ def display_recent_grades(db, limit=5):
             subject = grade[5][:10] if grade[5] else "General"
             print(f"{date_str:<12} {grade[1]:<8.1f} {grade[2]:<6} {grade[3]:<5.2f} {student:<15} {subject}")
 
+def save_grade_report(score, letter_grade, gpa, student_name="", subject="", timestamp=None):
+    """Save grade report to grade_history.txt file"""
+    try:
+        if timestamp is None:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        filename = "grade_history.txt"
+        with open(filename, "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*60}\n")
+            f.write(f"Test Grader v11.0.0 - Grade Report\n")
+            f.write(f"Timestamp: {timestamp}\n")
+            f.write(f"{'='*60}\n")
+            f.write(f"Student: {student_name or 'Anonymous'}\n")
+            f.write(f"Subject: {subject or 'General'}\n")
+            f.write(f"Score: {score:.2f}/100\n")
+            f.write(f"Letter Grade: {letter_grade}\n")
+            f.write(f"GPA: {gpa:.2f}/4.00\n")
+            f.write(f"{'='*60}\n\n")
+        return True
+    except Exception as e:
+        print(f"{Colors.FAIL}Error saving to file: {e}{Colors.ENDC}")
+        return False
+
 def main():
     print_banner()
     db = GradeDatabase()
@@ -158,10 +180,11 @@ def main():
             print("1. Grade a test")
             print("2. View database statistics")
             print("3. View recent grades")
-            print("4. Export grades to JSON")
-            print("5. Exit")
+            print("4. View grade history (from file)")
+            print("5. Export grades to JSON")
+            print("6. Exit")
             
-            choice = input(f"\n{Colors.OKBLUE}Enter choice (1-5): {Colors.ENDC}").strip()
+            choice = input(f"\n{Colors.OKBLUE}Enter choice (1-6): {Colors.ENDC}").strip()
             
             if choice == "1":
                 # Get student info
@@ -194,6 +217,10 @@ def main():
                 db.save_grade(score, letter_grade, gpa, student_name, subject, message)
                 print(f"\n{Colors.OKGREEN}✅ Grade saved to database!{Colors.ENDC}")
                 
+                # Save to grade_history.txt
+                if save_grade_report(score, letter_grade, gpa, student_name, subject):
+                    print(f"{Colors.OKGREEN}✅ Grade saved to grade_history.txt!{Colors.ENDC}")
+                
             elif choice == "2":
                 display_database_stats(db)
                 input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
@@ -203,6 +230,18 @@ def main():
                 input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
                 
             elif choice == "4":
+                # View grade history from file
+                try:
+                    with open("grade_history.txt", "r", encoding="utf-8") as f:
+                        print("\n" + Colors.BOLD + "📚 GRADE HISTORY (from file)" + Colors.ENDC)
+                        print("─" * 60)
+                        print(f.read())
+                        input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
+                except FileNotFoundError:
+                    print(f"{Colors.WARNING}No grade history file found yet.{Colors.ENDC}")
+                    input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
+                
+            elif choice == "5":
                 # Export to JSON
                 grades = db.get_all_grades()
                 export_data = []
@@ -223,7 +262,7 @@ def main():
                 print(f"{Colors.OKGREEN}✅ Grades exported to grades_export.json!{Colors.ENDC}")
                 input(f"\n{Colors.OKBLUE}Press Enter to continue...{Colors.ENDC}")
                 
-            elif choice == "5":
+            elif choice == "6":
                 print(f"\n{Colors.OKGREEN}Thank you for using Test Grader v11.0.0!{Colors.ENDC}")
                 break
             else:
