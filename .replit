@@ -16,18 +16,19 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "test-grader"
+args = "webserver"
 
 [[workflows.workflow]]
-name = "test-grader"
+name = "webserver"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python \"test grader v10.0.0.py\""
+args = "python wed_view.py"
+waitForPort = 5000
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[ports]]
 localPort = 5000
