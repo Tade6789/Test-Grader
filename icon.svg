@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="100%" height="100%" rx="48" fill="#4e54c8" />
+  <g fill="#ffffff" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-weight="700" font-size="220">
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">TG</text>
+  </g>
+</svg>
