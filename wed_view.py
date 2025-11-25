@@ -289,6 +289,69 @@ def get_history():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/servers', methods=['GET'])
+def get_servers():
+    """Get all grade servers"""
+    try:
+        servers = GradeServer.query.all()
+        return jsonify({
+            'servers': [{
+                'id': s.id,
+                'version': s.version,
+                'port': s.port,
+                'status': s.status,
+                'created_at': s.created_at.isoformat()
+            } for s in servers]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/grades', methods=['GET'])
+def get_grades():
+    """Get all grade reports"""
+    try:
+        grades = GradeReport.query.order_by(GradeReport.created_at.desc()).all()
+        return jsonify({
+            'grades': [g.to_dict() for g in grades]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    """Get database statistics"""
+    try:
+        server_count = GradeServer.query.count()
+        grade_count = GradeReport.query.count()
+        
+        avg_score = 0
+        avg_gpa = 0
+        
+        if grade_count > 0:
+            from sqlalchemy import func
+            score_result = db.session.query(func.avg(GradeReport.score)).scalar()
+            gpa_result = db.session.query(func.avg(GradeReport.gpa)).scalar()
+            avg_score = float(score_result) if score_result else 0
+            avg_gpa = float(gpa_result) if gpa_result else 0
+        
+        return jsonify({
+            'server_count': server_count,
+            'grade_count': grade_count,
+            'avg_score': avg_score,
+            'avg_gpa': avg_gpa
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/database')
+def database_page():
+    """Serve the database management page"""
+    try:
+        with open('database.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('database.html')
+
 @app.route('/download/<filename>')
 def download_file(filename):
     """Download a file"""
