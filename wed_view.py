@@ -368,6 +368,15 @@ def stats_page():
     except:
         return render_template('stats.html')
 
+@app.route('/bucket')
+def bucket_page():
+    """Serve the pricing bucket page"""
+    try:
+        with open('bucket.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('bucket.html')
+
 @app.route('/download/<filename>')
 def download_file(filename):
     """Download a file"""
