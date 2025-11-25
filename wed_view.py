@@ -90,6 +90,16 @@ def index():
     except:
         return render_template('index.html')
 
+@app.route('/test.html')
+@app.route('/downloads')
+def downloads():
+    """Serve the downloads page"""
+    try:
+        with open('test.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('test.html')
+
 @app.route('/auth')
 def auth():
     """Serve the auth page"""
