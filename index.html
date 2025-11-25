@@ -193,6 +193,68 @@
             color: #007acc;
             margin-top: 0;
         }
+
+        .teacher-banner {
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%234c3f91' width='100' height='100'/><text x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>G</text></svg>">
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .teacher-banner h3 {
+            margin: 0 0 1rem 0;
+    <div class="teacher-banner">
+        <h3>👨‍🏫 For Teachers: Use Our Web Grading Console</h3>
+        <p>Grade students online in real-time with our interactive web interface</p>
+        <div class="auth-buttons">
+            <a href="/auth" class="auth-btn signup-btn">📝 Sign Up</a>
+            <a href="/auth" class="auth-btn login-btn">🔓 Log In</a>
+        </div>
+    </div>
+            font-size: 1.5rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .auth-btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .signup-btn {
+            background-color: white;
+            color: #667eea;
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .login-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
     </style>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>

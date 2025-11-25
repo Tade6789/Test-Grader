@@ -1,7 +1,6 @@
 modules = ["web", "python-3.11"]
 [agent]
 expertMode = true
-integrations = ["flask_authentication:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
