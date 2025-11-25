@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #4c3f91;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4c3f91;
+            border: 2px solid #4c3f91;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #4c3f91;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #4c3f91;
+            padding-bottom: 0.5rem;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .endpoint:last-child {
+            margin-bottom: 0;
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .method {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .method-get {
+            background: #28a745;
+            color: white;
+        }
+
+        .method-post {
+            background: #007bff;
+            color: white;
+        }
+
+        .method-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .endpoint-desc {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .pro-badge {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .params {
+            background: #e9ecef;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .params h4 {
+            color: #4c3f91;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .param-item {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #333;
+            margin: 0.3rem 0;
+        }
+
+        .param-name {
+            color: #007bff;
+        }
+
+        .param-type {
+            color: #6c757d;
+        }
+
+        .response-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .try-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .try-btn:hover {
+            background: #5a6fd6;
+        }
+
+        .result-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow: auto;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📡 API Documentation</h1>
+            <p>Test Grader API Endpoints</p>
+            <div class="nav-buttons">
+                <a href="/" class="btn btn-secondary">← Back Home</a>
+                <a href="/teacher" class="btn btn-primary">Teacher Console</a>
+                <a href="/database" class="btn btn-secondary">Database Manager</a>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>🔐 Authentication</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/login</span>
+                </div>
+                <p class="endpoint-desc">Login with email and password</p>
+                <div class="params">
+                    <h4>Request Body (JSON)</h4>
+                    <div class="param-item"><span class="param-name">email</span>: <span class="param-type">string</span> - User email</div>
+                    <div class="param-item"><span class="param-name">password</span>: <span class="param-type">string</span> - User password</div>
+                </div>
+                <div class="response-example">{"success": true, "message": "Login successful"}</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/signup</span>
+                </div>
+                <p class="endpoint-desc">Create a new account</p>
+                <div class="params">
+                    <h4>Request Body (JSON)</h4>
+                    <div class="param-item"><span class="param-name">name</span>: <span class="param-type">string</span> - Full name</div>
+                    <div class="param-item"><span class="param-name">email</span>: <span class="param-type">string</span> - Email address</div>
+                    <div class="param-item"><span class="param-name">password</span>: <span class="param-type">string</span> - Password (min 6 chars)</div>
+                </div>
+                <div class="response-example">{"success": true, "message": "Account created"}</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/logout</span>
+                </div>
+                <p class="endpoint-desc">Logout current user</p>
+                <div class="response-example">{"success": true}</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/account</span>
+                </div>
+                <p class="endpoint-desc">Get current user account info</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/account', 'account-result')">Try It</button>
+                <div class="result-box" id="account-result"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Grading</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/grade</span>
+                </div>
+                <p class="endpoint-desc">Grade a student test</p>
+                <div class="params">
+                    <h4>Request Body (JSON)</h4>
+                    <div class="param-item"><span class="param-name">name</span>: <span class="param-type">string</span> - Student name</div>
+                    <div class="param-item"><span class="param-name">subject</span>: <span class="param-type">string</span> - Subject name</div>
+                    <div class="param-item"><span class="param-name">score</span>: <span class="param-type">number</span> - Score (0-100)</div>
+                    <div class="param-item"><span class="param-name">version</span>: <span class="param-type">string</span> - Grader version</div>
+                </div>
+                <div class="response-example">{"score": 95, "letter_grade": "A", "gpa": 4.0, "message": "Excellent work!"}</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/history</span>
+                </div>
+                <p class="endpoint-desc">Get grade history for current user</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/history', 'history-result')">Try It</button>
+                <div class="result-box" id="history-result"></div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/grades</span>
+                </div>
+                <p class="endpoint-desc">Get all grades (admin)</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/grades', 'grades-result')">Try It</button>
+                <div class="result-box" id="grades-result"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">⭐ Pro Features <span class="pro-badge">PRO</span></h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/download-pdf</span>
+                    <span class="pro-badge">PRO</span>
+                </div>
+                <p class="endpoint-desc">Download grades as PDF report</p>
+                <div class="response-example">Returns PDF file download</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/advanced-analytics</span>
+                    <span class="pro-badge">PRO</span>
+                </div>
+                <p class="endpoint-desc">Get advanced grade analytics</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/advanced-analytics', 'analytics-result')">Try It</button>
+                <div class="result-box" id="analytics-result"></div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/check-pro-access/:resource</span>
+                </div>
+                <p class="endpoint-desc">Check if user has access to a Pro feature</p>
+                <div class="response-example">{"access": true, "plan": "pro", "resource": "analytics"}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🖥️ System</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/servers</span>
+                </div>
+                <p class="endpoint-desc">Get all grade servers</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/servers', 'servers-result')">Try It</button>
+                <div class="result-box" id="servers-result"></div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/stats</span>
+                </div>
+                <p class="endpoint-desc">Get system statistics</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/stats', 'stats-result')">Try It</button>
+                <div class="result-box" id="stats-result"></div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/users</span>
+                </div>
+                <p class="endpoint-desc">Get all users (admin)</p>
+                <button class="try-btn" onclick="tryEndpoint('/api/users', 'users-result')">Try It</button>
+                <div class="result-box" id="users-result"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💳 Payments (Stripe)</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="endpoint-path">/api/create-checkout-session</span>
+                </div>
+                <p class="endpoint-desc">Create Stripe checkout session for Pro upgrade</p>
+                <div class="params">
+                    <h4>Request Body (JSON)</h4>
+                    <div class="param-item"><span class="param-name">plan</span>: <span class="param-type">string</span> - "pro" or "enterprise"</div>
+                </div>
+                <div class="response-example">{"url": "https://checkout.stripe.com/..."}</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-path">/api/verify-stripe-session</span>
+                </div>
+                <p class="endpoint-desc">Verify Stripe session after payment</p>
+                <div class="params">
+                    <h4>Query Parameters</h4>
+                    <div class="param-item"><span class="param-name">session_id</span>: <span class="param-type">string</span> - Stripe session ID</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Test Grader - API Documentation</p>
+        </footer>
+    </div>
+
+    <script>
+        async function tryEndpoint(url, resultId) {
+            const resultBox = document.getElementById(resultId);
+            resultBox.style.display = 'block';
+            resultBox.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                resultBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultBox.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

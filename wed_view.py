@@ -407,6 +407,15 @@ def database_page():
     except:
         return render_template('database.html')
 
+@app.route('/api-docs')
+def api_docs_page():
+    """Serve the API documentation page"""
+    try:
+        with open('api.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('api.html')
+
 @app.route('/stats')
 def stats_page():
     """Serve the statistics page"""
