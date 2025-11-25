@@ -83,21 +83,33 @@ def save_grade_report(score, letter_grade, gpa, name="", subject=""):
 
 @app.route('/')
 def index():
-    """Serve the download page"""
-    return render_template('test.html')
+    """Serve the homepage"""
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('index.html')
 
 @app.route('/auth')
 def auth():
     """Serve the auth page"""
     if current_user.is_authenticated:
         return redirect(url_for('teacher_console'))
-    return render_template('auth.html')
+    try:
+        with open('auth.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('auth.html')
 
 @app.route('/code')
 @login_required
 def code_verification():
     """Serve the code verification page"""
-    return render_template('code.html')
+    try:
+        with open('code.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('code.html')
 
 @app.route('/teacher')
 @login_required
@@ -106,7 +118,11 @@ def teacher_console():
     code_verified = request.cookies.get('code_verified')
     if not code_verified:
         return redirect(url_for('code_verification'))
-    return render_template('teacher.html')
+    try:
+        with open('teacher.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('teacher.html')
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
