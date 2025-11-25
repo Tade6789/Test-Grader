@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "gobject-introspection", "gtk3", "pkg-config", "qhull", "tcl", "tk"]
+packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "gobject-introspection", "gtk3", "openssl", "pkg-config", "postgresql", "qhull", "tcl", "tk"]
 
 [workflows]
 runButton = "Project"
@@ -41,6 +41,10 @@ externalPort = 3000
 [[ports]]
 localPort = 35291
 externalPort = 3001
+
+[[ports]]
+localPort = 40749
+externalPort = 3003
 
 [[ports]]
 localPort = 41593

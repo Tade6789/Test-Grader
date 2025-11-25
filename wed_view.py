@@ -5,11 +5,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
 import os
+from models import db, GradeReport, GradeServer, User as DbUser
 
 app = Flask(__name__, template_folder='.', static_folder='.')
 CORS(app)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_recycle': 300,
+    'pool_pre_ping': True,
+}
 app.config['JSON_SORT_KEYS'] = False
+
+db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -64,25 +72,24 @@ def determine_grade(score):
             return GRADE_SCALE[threshold]
     return ("F", "Failed. Please seek help immediately!", 0.0)
 
-def save_grade_report(score, letter_grade, gpa, name="", subject=""):
-    """Save grade report to grade_history.txt file"""
+def save_grade_report(score, letter_grade, feedback, gpa, name="", subject="", server_id=1):
+    """Save grade report to database"""
     try:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        filename = "grade_history.txt"
-        with open(filename, "a", encoding="utf-8") as f:
-            f.write(f"\n{'='*60}\n")
-            f.write(f"Test Grader - Grade Report\n")
-            f.write(f"Timestamp: {timestamp}\n")
-            f.write(f"{'='*60}\n")
-            f.write(f"Student: {name or 'Anonymous'}\n")
-            f.write(f"Subject: {subject or 'General'}\n")
-            f.write(f"Score: {score:.2f}/100\n")
-            f.write(f"Letter Grade: {letter_grade}\n")
-            f.write(f"GPA: {gpa:.2f}/4.00\n")
-            f.write(f"{'='*60}\n\n")
+        grade = GradeReport(
+            server_id=server_id,
+            student_name=name or 'Anonymous',
+            subject=subject or 'General',
+            score=score,
+            letter_grade=letter_grade,
+            feedback=feedback,
+            gpa=gpa
+        )
+        db.session.add(grade)
+        db.session.commit()
         return True
     except Exception as e:
-        print(f"Error saving to file: {e}")
+        print(f"Error saving to database: {e}")
+        db.session.rollback()
         return False
 
 @app.route('/')
@@ -249,8 +256,8 @@ def grade_test():
 
         letter_grade, message, gpa = determine_grade(score)
 
-        # Save to file
-        save_grade_report(score, letter_grade, gpa, name, subject)
+        # Save to database
+        save_grade_report(score, letter_grade, message, gpa, name, subject)
 
         return jsonify({
             'success': True,
@@ -270,13 +277,17 @@ def grade_test():
 @app.route('/api/history', methods=['GET'])
 @login_required
 def get_history():
-    """Get grade history"""
+    """Get grade history from database"""
     try:
-        with open('grade_history.txt', 'r', encoding='utf-8') as f:
-            content = f.read()
-        return jsonify({'history': content})
-    except FileNotFoundError:
-        return jsonify({'history': 'No grade history found yet.'})
+        grades = GradeReport.query.order_by(GradeReport.created_at.desc()).all()
+        if not grades:
+            return jsonify({'history': 'No grade history found yet.', 'records': []})
+        return jsonify({
+            'history': 'Grade Records',
+            'records': [g.to_dict() for g in grades]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -295,6 +306,16 @@ def download_file(filename):
         return f"Error: {str(e)}", 500
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        
+        # Create default server if not exists
+        server = GradeServer.query.filter_by(version='v14.0.0').first()
+        if not server:
+            server = GradeServer(version='v14.0.0', port=5000, status='active')
+            db.session.add(server)
+            db.session.commit()
+    
     print("🎓 Test Grader Teacher Console Server")
     print("Starting server on http://0.0.0.0:5000")
     print("Open your browser and navigate to the server URL")

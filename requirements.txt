@@ -1,15 +1,9 @@
 matplotlib==3.8.2
 numpy==1.26.3
-matplotlib
 flask
 flask-login
 flask-wtf
 flask-cors
 werkzeug
-flask
-flask-cors
-flask-login
-flask-wtf
-matplotlib
-numpy
-werkzeug
+flask-sqlalchemy
+psycopg2
