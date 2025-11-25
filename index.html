@@ -2,630 +2,125 @@
 <html lang="en">
 
 <head>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg"> <link rel="mask-icon" href="/icon.svg" color="#4c3f91"> <link rel="alternate icon" href="/icon.png"> <link rel="shortcut icon" href="/favicon.ico"> <meta name="theme-color" content="#4c3f91">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Grader - Download</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-
-        header {
-            background-color: #4c3f91;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2.5rem;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            margin-top: 0.5rem;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .download-section {
-            background-color: #f0f4f8;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-
-        .download-button {
-            display: inline-block;
-            background-color: #4c3f91;
-            color: white;
-            text-decoration: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 5px;
-            font-weight: bold;
-            margin: 1rem;
-            transition: background-color 0.3s;
-        }
-
-        .download-button:hover {
-            background-color: #3b2f70;
-        }
-
-        .download-button i {
-            margin-right: 0.5rem;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature {
-            background-color: #f9f9f9;
-            border-left: 4px solid #4c3f91;
-            padding: 1.2rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .version-list {
-            margin-top: 2rem;
-        }
-
-        .version {
-            border-left: 3px solid #4c3f91;
-            padding-left: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        code {
-            background-color: #f0f0f0;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: Consolas, Monaco, 'Courier New', monospace;
-        }
-
-        .screenshots {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .screenshot {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .screenshot img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .code-preview {
-            background-color: #f8f8f8;
-            border-radius: 8px;
-            padding: 1.5rem;
-            overflow-x: auto;
-            margin-top: 1.5rem;
-        }
-
-        pre {
-            margin: 0;
-            font-family: Consolas, Monaco, 'Courier New', monospace;
-        }
-
-        .python-download {
-            background-color: #ffd43b;
-            color: #333;
-            border: 2px solid #306998;
-        }
-
-        .python-download:hover {
-            background-color: #ffbe00;
-        }
-
-        .download-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .download-option {
-            background-color: white;
-            border: 2px solid #4c3f91;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .badge {
-            display: inline-block;
-            background-color: #4caf50;
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-        }
-
-        .vscode-section {
-            background-color: #e8f4fd;
-            border-left: 4px solid #007acc;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 4px;
-        }
-
-        .vscode-section h4 {
-            color: #007acc;
-            margin-top: 0;
-        }
-
-        .teacher-banner {
+    <title>Test Grader - Professional Grade Calculator</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%234c3f91' width='100' height='100'/><text x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>G</text></svg>">
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        
+        header { background: linear-gradient(135deg, #4c3f91 0%, #667eea 100%); color: white; padding: 3rem 2rem; text-align: center; }
+        header h1 { font-size: 2.8rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
 
-        .teacher-banner h3 {
-            margin: 0 0 1rem 0;
-    <div class="teacher-banner">
-        <h3>👨‍🏫 For Teachers: Use Our Web Grading Console</h3>
-        <p>Grade students online in real-time with our interactive web interface</p>
-        <div class="auth-buttons">
-            <a href="/auth" class="auth-btn signup-btn">📝 Sign Up</a>
-            <a href="/auth" class="auth-btn login-btn">🔓 Log In</a>
-        </div>
-    </div>
-            font-size: 1.5rem;
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; }
+        .card h2 { color: #4c3f91; margin-bottom: 1.5rem; font-size: 1.8rem; }
 
-        .auth-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
+        .section-title { color: #4c3f91; font-size: 1.6rem; margin: 2rem 0 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
 
-        .auth-btn {
-            display: inline-block;
-            padding: 0.8rem 1.8rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
+        .banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; margin-bottom: 2rem; }
+        .banner h3 { margin-bottom: 1rem; font-size: 1.5rem; }
+        .auth-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .btn { display: inline-block; padding: 0.9rem 1.8rem; font-size: 1rem; font-weight: 600; border-radius: 5px; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: white; color: #667eea; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-secondary { background: transparent; color: white; border: 2px solid white; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 
-        .signup-btn {
-            background-color: white;
-            color: #667eea;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .grid-item { background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%); border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; text-align: center; text-decoration: none; color: #333; transition: all 0.3s; }
+        .grid-item:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(102,126,234,0.2); border-color: #4c3f91; }
+        .grid-item h3 { color: #4c3f91; margin-bottom: 0.5rem; }
+        .grid-item p { font-size: 0.9rem; color: #666; margin-bottom: 0.8rem; }
+        .badge { display: inline-block; background: #667eea; color: white; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
 
-        .signup-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-        }
+        .info-box { background: #fffbea; border-left: 4px solid #ffc107; padding: 1.5rem; border-radius: 4px; margin-top: 1rem; }
+        .info-box h4 { color: #ff8c00; margin-bottom: 0.5rem; }
+        .info-box ul { margin-left: 1.5rem; color: #666; }
+        .info-box li { margin: 0.3rem 0; }
 
-        .login-btn {
-            background-color: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .login-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
+        footer { text-align: center; padding: 1.5rem; background: #333; color: #999; font-size: 0.9rem; }
     </style>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <header>
-        <h1>Test Grader</h1>
-        <p class="subtitle">A professional grade calculation tool</p>
+        <h1>📊 Test Grader</h1>
+        <p>Professional Grade Calculation & Analysis System</p>
     </header>
 
     <div class="container">
-        <div class="card">
-            <h2>About Test Grader</h2>
-            <p>
-                Test Grader is a powerful Python application designed to help educators and students calculate and
-                visualize test scores.
-                With an intuitive interface and comprehensive grading scale, it provides detailed feedback and visual
-                representation
-                of test performance.
-            </p>
-
-            <div class="download-section">
-                <h3>Download Test Grader</h3>
-                <p>Choose your preferred download option:</p>
-
-                <h4>Download All Test Grader Versions:</h4>
-                <div class="download-option">
-                    <h4>v11.0.0 <span class="badge">🚀 ULTIMATE</span></h4>
-                    <p>AI-assisted grading tips and smarter feedback for clearer next steps.</p>
-                    <a href="test%20grader%20v11.0.0.py" download class="download-button">
-                        <i class="fas fa-download"></i> Download
-                    </a>
-                </div>
-
-                <div class="download-option">
-                    <h4>v12.0.0 <span class="badge">🚀 ULTIMATE</span></h4>
-                    <p>Live view dashboard with real-time progress and AI-assisted feedback.</p>
-                    <a href="test%20grader%20v12.0.0.py" download class="download-button">
-                        <i class="fas fa-download"></i> Download
-                    </a>
-                </div>
-
-
-                <div class="download-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                    <div class="download-option"
-                        style="border-color: #ff6b6b; border-width: 3px; background: linear-gradient(135deg, #fff 0%, #ffe6e6 100%);">
-                        <h4>v10.0.0 <span class="badge" style="background-color: #ff6b6b;">🚀 ULTIMATE</span></h4>
-                        <p style="font-size: 0.85rem; font-weight: bold;">Color output, history, GPA, and session stats
-                        </p>
-                        <a href="test%20grader%20v10.0.0.py" download class="download-button"
-                            style="padding: 0.6rem 1rem; font-size: 0.9rem; background-color: #ff6b6b;">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-
-                    <div class="download-option" style="border-color: #4caf50;">
-                        <h4>v6.0.0</h4>
-                        <p style="font-size: 0.85rem;">Full-featured with visual feedback</p>
-                        <a href="test%20grader%20V6.0.0.py" download class="download-button"
-                            style="padding: 0.6rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-
-                    <div class="download-option">
-                        <h4>v2.4.12</h4>
-                        <p style="font-size: 0.85rem;">Input validation & boundaries</p>
-                        <a href="test%20grader%20V2.4.12.py" download class="download-button"
-                            style="padding: 0.6rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-
-                    <div class="download-option">
-                        <h4>v2.2.0</h4>
-                        <p style="font-size: 0.85rem;">Updated grading scale</p>
-                        <a href="test%20grader%20V2.2.0.py" download class="download-button"
-                            style="padding: 0.6rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-
-                    <div class="download-option">
-                        <h4>v1.0.7</h4>
-                        <p style="font-size: 0.85rem;">Original basic version</p>
-                        <a href="test%20garder%20v%201.0.7.py" download class="download-button"
-                            style="padding: 0.6rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                </div>
-
-                <h4 style="margin-top: 2rem;">Development Tools:</h4>
-                <div class="download-grid">
-                    <div class="download-option">
-                        <h4>Python 3.14.0 <span class="badge">Recommended</span></h4>
-                        <p>Download Python with virtual environment support</p>
-                        <a href="https://www.python.org/ftp/python/3.14.0/python-3.14.0-amd64.exe"
-                            class="download-button python-download">
-                            <i class="fas fa-python"></i> Download Python 3.14.0
-                        </a>
-                        <p class="note">
-                            <small>Official Python installer for Windows (64-bit)</small>
-                        </p>
-                    </div>
-
-                    <div class="download-option">
-                        <h4>Visual Studio Code <span class="badge">IDE</span></h4>
-                        <p>Powerful code editor for Python development</p>
-                        <a href="https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user"
-                            class="download-button" style="background-color: #007acc;">
-                            <i class="fas fa-code"></i> Download VS Code
-                        </a>
-                        <p class="note">
-                            <small>Free IDE with Python support</small>
-                        </p>
-                    </div>
-                </div>
+        <div class="banner">
+            <h3>👨‍🏫 For Teachers</h3>
+            <p>Grade students online with our interactive web console</p>
+            <div class="auth-buttons">
+                <a href="/auth" class="btn btn-primary">📝 Sign Up</a>
+                <a href="/auth" class="btn btn-secondary">🔓 Log In</a>
             </div>
-
-        </div>
-
-        <div class="card">
-            <h2>Features (v10.0.0 Ultimate Edition)</h2>
-            <div class="features">
-                <div class="feature">
-                    <h3>🎨 Color-Coded Output</h3>
-                    <p>Beautiful ANSI color terminal output with dynamic color coding based on grade performance.</p>
-                </div>
-                <div class="feature">
-                    <h3>📊 Advanced Visualization</h3>
-                    <p>50-character progress bars with percentage markers and color-coded performance indicators.</p>
-                </div>
-                <div class="feature">
-                    <h3>💾 Grade History Tracking</h3>
-                    <p>Automatically saves all grades to file with timestamps. View complete grade history anytime.</p>
-                </div>
-                <div class="feature">
-                    <h3>🎓 GPA Calculator</h3>
-                    <p>Calculates GPA equivalent (4.0 scale) for each grade with detailed statistics.</p>
-                </div>
-                <div class="feature">
-                    <h3>📈 Session Statistics</h3>
-                    <p>Tracks multiple tests in one session with running averages and test count.</p>
-                </div>
-                <div class="feature">
-                    <h3>🔍 13-Tier Grading System</h3>
-                    <p>Ultra-precise grading with A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F grades.</p>
-                </div>
-                <div class="feature">
-                    <h3>💬 Actionable Feedback</h3>
-                    <p>Detailed, personalized feedback with specific improvement steps and study recommendations.</p>
-                </div>
-                <div class="feature">
-                    <h3>🎯 Interactive Menu System</h3>
-                    <p>Grade multiple tests, view grading scale, check history, all in one convenient interface.</p>
-                </div>
+            <div class="info-box" style="text-align: left;">
+                <strong>⚡ Version Codes:</strong> v10=GRADE10 | v11=GRADE11 | v12=GRADE12 | v13=GRADE13
             </div>
         </div>
 
         <div class="card">
-            <h2>Installation Guide</h2>
-
-            <h3>Option 1: Quick Start (If you have Python installed)</h3>
-            <ol>
-                <li>Download the Test Grader script using the button above</li>
-                <li>Open a terminal/command prompt in the download folder</li>
-                <li>Run: <code>python "test grader V6.0.0.py"</code></li>
-            </ol>
-
-            <h3>Option 2: Fresh Install with Python 3.14.0 & Virtual Environment</h3>
-            <ol>
-                <li>Download and install Python 3.14.0 using the button above</li>
-                <li>During installation, check "Add Python to PATH"</li>
-                <li>Download the Test Grader script</li>
-                <li>Open a terminal/command prompt in the script folder</li>
-                <li>Create a virtual environment:
-                    <div class="code-preview">
-                        <pre><code># Windows
-python -m venv .venv
-.venv\Scripts\activate
-# use command prompt it is going to work.
-
-# macOS/Linux
-python3 -m venv .venv
-source .venv/bin/activate</code></pre>
-                    </div>
-                </li>
-                <li>Run the script: <code>python "test grader V6.0.0.py"</code></li>
-                <li>Enter the test score when prompted</li>
-                <li>View detailed results with letter grade and feedback</li>
-            </ol>
-
-            <h3>Option 3: Professional Setup with Visual Studio Code</h3>
-            <ol>
-                <li>Download and install Python 3.14.0</li>
-                <li>Download and install Visual Studio Code</li>
-                <li>Open VS Code and install the Python extension:
-                    <ul>
-                        <li>Click on Extensions icon (left sidebar) or press <code>Ctrl+Shift+X</code></li>
-                        <li>Search for "Python" and install the Microsoft Python extension</li>
-                    </ul>
-                </li>
-                <li>Download the Test Grader script</li>
-                <li>Open the script folder in VS Code: <code>File > Open Folder</code></li>
-                <li>Create a virtual environment using VS Code terminal:
-                    <div class="code-preview">
-                        <pre><code># Open terminal in VS Code (Ctrl + `)
-python -m venv .venv
-
-# VS Code will prompt to select this as your interpreter - click Yes
-# Or manually select: Ctrl+Shift+P > "Python: Select Interpreter" > Choose .venv</code></pre>
-                    </div>
-                </li>
-                <li>VS Code will automatically activate the virtual environment</li>
-                <li>Run the script by pressing <code>F5</code> or clicking the Run button</li>
-                <li>View the output in the integrated terminal</li>
-            </ol>
-
-            <h3>Why Use Visual Studio Code?</h3>
-            <ul>
-                <li><strong>IntelliSense:</strong> Smart code completion and suggestions</li>
-                <li><strong>Debugging:</strong> Built-in debugger with breakpoints and variable inspection</li>
-                <li><strong>Integrated Terminal:</strong> Run Python scripts without leaving the editor</li>
-                <li><strong>Extensions:</strong> Rich ecosystem of Python tools and linters</li>
-                <li><strong>Git Integration:</strong> Version control built right in</li>
-                <li><strong>Free & Open Source:</strong> Completely free to use</li>
-            </ul>
-
-            <h3>Why Use a Virtual Environment (.venv)?</h3>
-            <ul>
-                <li><strong>Isolation:</strong> Keeps project dependencies separate from system Python</li>
-                <li><strong>Clean:</strong> Prevents version conflicts between different projects</li>
-                <li><strong>Portable:</strong> Easy to recreate the same environment on different machines</li>
-                <li><strong>Professional:</strong> Industry best practice for Python development</li>
-            </ul>
-
-            <h3>Code Preview</h3>
-            <div class="code-preview">
-                <pre><code>def determine_grade(score):
-    """Determine letter grade, message, and color code based on score."""
-    if score >= 90:
-        return "A", "Excellent work! Outstanding performance!", "A+"
-    elif score >= 85:
-        return "B+", "Very good job! Above average performance.", "B+"
-    elif score >= 80:
-        return "B", "Good job! Strong performance.", "B" 
-    # ... and so on</code></pre>
+            <h2>🖥️ Standalone Web Servers</h2>
+            <p>Each version runs independently with its own storage system. Start them locally:</p>
+            <div class="grid">
+                <a href="http://localhost:5010" class="grid-item">
+                    <h3>v10.0.0</h3>
+                    <p>File-based storage</p>
+                    <span class="badge">Port 5010</span>
+                </a>
+                <a href="http://localhost:5011" class="grid-item">
+                    <h3>v11.0.0</h3>
+                    <p>Database storage</p>
+                    <span class="badge">Port 5011</span>
+                </a>
+                <a href="http://localhost:5012" class="grid-item">
+                    <h3>v12.0.0</h3>
+                    <p>CSV export</p>
+                    <span class="badge">Port 5012</span>
+                </a>
+                <a href="http://localhost:5013" class="grid-item">
+                    <h3>v13.0.0</h3>
+                    <p>JSON analytics</p>
+                    <span class="badge">Port 5013</span>
+                </a>
             </div>
         </div>
 
         <div class="card">
-            <h2>Complete Version History</h2>
-            <div class="version-list">
-                <div class="version"
-                    style="border-left-color: #ff6b6b; border-left-width: 5px; background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);">
-                    <h3>v10.0.0 (Latest - December 2024) <span class="badge" style="background-color: #ff6b6b;">🚀
-                            ULTIMATE</span></h3>
-                    <p><strong>The Ultimate Test Grading System - Revolutionary Update!</strong></p>
-                    <ul>
-                        <li>🎨 <strong>Color-Coded Terminal Output</strong> - Beautiful ANSI colors for enhanced
-                            readability</li>
-                        <li>📊 <strong>50-Character Progress Bar</strong> - Larger, more detailed visualization with
-                            percentage markers</li>
-                        <li>💾 <strong>Automatic Grade History</strong> - Saves all grades to grade_history.txt with
-                            timestamps</li>
-                        <li>🎓 <strong>GPA Calculator</strong> - Calculates GPA equivalent on 4.0 scale</li>
-                        <li>📈 <strong>Session Statistics</strong> - Tracks average score and test count per session
-                        </li>
-                        <li>🔍 <strong>13-Tier Grading</strong> - Ultra-precise with A+, A, A-, B+, B, B-, C+, C, C-,
-                            D+, D, D-, F</li>
-                        <li>📋 <strong>Complete Grade Boundaries Table</strong> - Shows all 13 grades with GPA values
-                        </li>
-                        <li>🎯 <strong>Interactive Menu System</strong> - Grade tests, view scale, check history, all in
-                            one place</li>
-                        <li>✨ <strong>Enhanced Feedback</strong> - Detailed, actionable advice with specific study
-                            recommendations</li>
-                        <li>🛡️ <strong>Advanced Error Handling</strong> - Robust validation with attempt limits and
-                            keyboard interrupt support</li>
-                        <li>🖥️ <strong>Screen Management</strong> - Auto-clears screen for clean, professional
-                            interface</li>
-                        <li>📱 <strong>Percentile Ranking</strong> - Shows estimated class ranking based on score</li>
-                    </ul>
-                    <p><strong>Best for:</strong> Professional educators, advanced users, anyone wanting the absolute
-                        best grading experience</p>
-                    <p><strong>Note:</strong> Best viewed in modern terminals that support ANSI colors (Windows
-                        Terminal, VS Code Terminal, etc.)</p>
-                </div>
-
-                <div class="version">
-                    <h3>v6.0.0 (December 2024)</h3>
-                    <p><strong>Major overhaul with professional features</strong></p>
-                    <ul>
-                        <li>✨ Added plus grades (B+, C+, D+) for more precise grading</li>
-                        <li>📊 Enhanced visual score representation with 40-char progress bar</li>
-                        <li>💬 Added personalized feedback system with improvement suggestions</li>
-                        <li>🔁 Multiple test grading support without restart</li>
-                        <li>⚡ Improved error handling with try/catch blocks</li>
-                        <li>🎯 Performance indicators with emoji feedback</li>
-                        <li>📋 Comprehensive grade boundaries table</li>
-                        <li>🔧 Loop-based grading to prevent stack overflow</li>
-                    </ul>
-                    <p><strong>Best for:</strong> Professional educators, comprehensive feedback needs</p>
-                </div>
-
-                <div class="version">
-                    <h3>v2.4.12</h3>
-                    <p><strong>Added validation and reference features</strong></p>
-                    <ul>
-                        <li>✅ Input validation loop for valid grades (0-100)</li>
-                        <li>⚠️ Error handling for non-numeric inputs</li>
-                        <li>📋 Grade boundaries reference table</li>
-                        <li>📊 20-character progress bar visualization</li>
-                        <li>✏️ Grammar correction in output messages</li>
-                    </ul>
-                    <p><strong>Best for:</strong> Users wanting validation with simpler interface</p>
-                </div>
-
-                <div class="version">
-                    <h3>v2.2.0</h3>
-                    <p><strong>Updated grading scale and messages</strong></p>
-                    <ul>
-                        <li>📝 Basic grading scale (A, B, C, D, F)</li>
-                        <li>💭 Simple feedback messages</li>
-                        <li>⚡ Quick and straightforward grading</li>
-                        <li>📖 Code comments explaining version</li>
-                    </ul>
-                    <p><strong>Best for:</strong> Quick grading without extra features</p>
-                </div>
-
-                <div class="version">
-                    <h3>v1.0.7 (Original)</h3>
-                    <p><strong>The original Test Grader</strong></p>
-                    <ul>
-                        <li>🎯 Basic grade calculation</li>
-                        <li>📝 Simple letter grade output</li>
-                        <li>⚡ Minimal, fast, and easy to understand</li>
-                        <li>🔰 Perfect for learning Python basics</li>
-                    </ul>
-                    <p><strong>Best for:</strong> Beginners learning Python, minimal functionality needed</p>
-                </div>
+            <h2>📥 Download Versions</h2>
+            <p>Download any version to run locally on your computer:</p>
+            <div style="text-align: center;">
+                <a href="test.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">View All Downloads</a>
             </div>
+        </div>
 
-            <div class="vscode-section">
-                <h4>📌 Which Version Should I Choose?</h4>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li>🚀 <strong>v10.0.0 (ULTIMATE):</strong> Want the absolute best with color output, GPA calc,
-                        grade history, and professional features</li>
-                    <li>🌟 <strong>v6.0.0:</strong> Want great features and visual feedback without terminal colors</li>
-                    <li>✅ <strong>v2.4.12:</strong> Need input validation but prefer simpler interface</li>
-                    <li>⚡ <strong>v2.2.0:</strong> Just want quick, basic grading</li>
-                    <li>🔰 <strong>v1.0.7:</strong> Learning Python or need the simplest version</li>
+        <div class="card">
+            <h2>✨ Features</h2>
+            <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+                <h4 style="color: #2e7d32;">🎯 What You Get:</h4>
+                <ul>
+                    <li>✅ 13-tier grading system (A+ to F)</li>
+                    <li>✅ Automatic GPA calculator (4.0 scale)</li>
+                    <li>✅ Grade history tracking</li>
+                    <li>✅ Multiple storage options (file, database, CSV, JSON)</li>
+                    <li>✅ Real-time feedback and analytics</li>
+                    <li>✅ Secure authentication system</li>
+                    <li>✅ Command-line & web interfaces</li>
+                    <li>✅ Detailed student performance reports</li>
                 </ul>
-                <p
-                    style="margin-top: 1rem; padding: 1rem; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
-                    <strong>💡 Recommendation:</strong> Start with v10.0.0 for the complete experience! It includes
-                    everything from previous versions plus revolutionary new features like color-coded output and grade
-                    history tracking.
-                </p>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>© 2025 Test Grader. All rights reserved.</p>
-        <p>Download the latest version for free and improve your grading experience today!</p>
-        <p>patters</p>
-        <button>Github</button>
+        <p>&copy; 2024 Test Grader System | All Versions Available</p>
     </footer>
 </body>
 
-
 </html>
-
