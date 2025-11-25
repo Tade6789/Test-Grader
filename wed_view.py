@@ -12,6 +12,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth'
 
+# Version codes for console access
+VERSION_CODES = {
+    'GRADE10': 'v10.0.0',
+    'GRADE11': 'v11.0.0',
+    'GRADE12': 'v12.0.0',
+    'GRADE13': 'v13.0.0'
+}
+
 # Simple in-memory user storage (replace with database in production)
 USERS = {}
 
@@ -85,10 +93,19 @@ def auth():
         return redirect(url_for('teacher_console'))
     return render_template('auth.html')
 
+@app.route('/code')
+@login_required
+def code_verification():
+    """Serve the code verification page"""
+    return render_template('code.html')
+
 @app.route('/teacher')
 @login_required
 def teacher_console():
     """Serve the teacher console"""
+    code_verified = request.cookies.get('code_verified')
+    if not code_verified:
+        return redirect(url_for('code_verification'))
     return render_template('teacher.html')
 
 @app.route('/api/login', methods=['POST'])
@@ -150,12 +167,34 @@ def api_signup():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/verify-code', methods=['POST'])
+@login_required
+def verify_code():
+    """Verify version code"""
+    try:
+        data = request.json
+        code = data.get('code', '').upper().strip()
+
+        if not code:
+            return jsonify({'error': 'Code required'}), 400
+
+        if code not in VERSION_CODES:
+            return jsonify({'error': 'Invalid code. Please try again.'}), 401
+
+        response = jsonify({'success': True, 'version': VERSION_CODES[code]})
+        response.set_cookie('code_verified', code, max_age=3600, httponly=True)
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def api_logout():
     """Logout API endpoint"""
     logout_user()
-    return jsonify({'success': True, 'message': 'Logged out successfully'})
+    response = jsonify({'success': True, 'message': 'Logged out successfully'})
+    response.delete_cookie('code_verified')
+    return response
 
 @app.route('/api/grade', methods=['POST'])
 @login_required

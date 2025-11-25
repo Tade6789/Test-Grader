@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version Code - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .code-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #4c3f91;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .version-display {
+            background-color: #f0f0f0;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #4c3f91;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4c3f91;
+            box-shadow: 0 0 5px rgba(76, 63, 145, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #4c3f91;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #3b2f70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(76, 63, 145, 0.3);
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: #4c3f91;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="code-box">
+            <h1>🔐 Enter Code</h1>
+            <div class="version-display" id="versionDisplay">Version Code Required</div>
+            <p class="subtitle">Enter the code for your version to access the console</p>
+
+            <div class="error" id="errorMessage"></div>
+
+            <form id="codeForm">
+                <div class="form-group">
+                    <label for="codeInput">Version Code</label>
+                    <input type="text" id="codeInput" placeholder="Enter code" required autofocus>
+                </div>
+                <button type="submit">Verify Code</button>
+            </form>
+
+            <div class="info-box">
+                <strong>📌 Version Codes:</strong><br>
+                v10: GRADE10<br>
+                v11: GRADE11<br>
+                v12: GRADE12<br>
+                v13: GRADE13
+            </div>
+
+            <div class="back-link">
+                <a href="/auth">← Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get version from URL or session
+        const version = sessionStorage.getItem('selectedVersion') || 'v10.0.0';
+        document.getElementById('versionDisplay').textContent = 'Version: ' + version;
+
+        const versionCodes = {
+            'v10': 'GRADE10',
+            'v11': 'GRADE11',
+            'v12': 'GRADE12',
+            'v13': 'GRADE13'
+        };
+
+        document.getElementById('codeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('codeInput').value.toUpperCase();
+            const errorBox = document.getElementById('errorMessage');
+
+            try {
+                const response = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorBox.textContent = data.error || 'Invalid code';
+                    errorBox.classList.add('show');
+                    document.getElementById('codeInput').value = '';
+                    return;
+                }
+
+                // Store verified code in session
+                sessionStorage.setItem('codeVerified', 'true');
+                sessionStorage.setItem('verifiedVersion', code);
+                window.location.href = '/teacher';
+            } catch (error) {
+                errorBox.textContent = 'Error: ' + error.message;
+                errorBox.classList.add('show');
+            }
+        });
+    </script>
+</body>
+
+</html>
