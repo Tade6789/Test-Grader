@@ -541,17 +541,25 @@
 
         async function upgradeToPro() {
             try {
+                // First, check if user is logged in by checking the account endpoint
+                const checkResponse = await fetch('/api/account', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (checkResponse.status === 401 || checkResponse.status === 302) {
+                    // Not logged in, redirect to auth
+                    window.location.href = '/auth';
+                    return;
+                }
+
+                // User is logged in, proceed with checkout
                 const response = await fetch('/api/checkout-pro', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        // Not logged in
-                        window.location.href = '/auth';
-                        return;
-                    }
                     const data = await response.json();
                     alert('Error: ' + (data.error || 'Unable to process payment'));
                     return;
@@ -560,6 +568,8 @@
                 const data = await response.json();
                 if (data.url) {
                     window.location.href = data.url;
+                } else {
+                    alert('Payment system error. Please try again.');
                 }
             } catch (error) {
                 alert('Payment error: ' + error.message);

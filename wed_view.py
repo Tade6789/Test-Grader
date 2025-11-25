@@ -467,6 +467,9 @@ def upgrade_to_pro():
 def checkout_pro():
     """Create checkout session for Pro plan ($9/month)"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Please log in first'}), 401
+            
         if not stripe_key:
             # If Stripe not configured, just upgrade user to pro for demo
             if current_user.id in USERS:
@@ -475,33 +478,44 @@ def checkout_pro():
             return jsonify({'error': 'Payment system not configured'}), 500
         
         current_url = request.host_url.rstrip('/')
-        session_obj = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': 'Pro Plan',
-                        'description': 'Professional grading system - $9/month',
+        try:
+            session_obj = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Pro Plan',
+                            'description': 'Professional grading system - $9/month',
+                        },
+                        'unit_amount': 900,  # $9.00
+                        'recurring': {
+                            'interval': 'month',
+                        }
                     },
-                    'unit_amount': 900,  # $9.00
-                    'recurring': {
-                        'interval': 'month',
-                    }
-                },
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=f'{current_url}/account?upgraded=true',
-            cancel_url=f'{current_url}/bucket?cancel=true',
-            customer_email=current_user.email if current_user.is_authenticated else None,
-        )
-        # Store session ID in user data to verify on success
-        if current_user.id in USERS:
-            USERS[current_user.id]['stripe_checkout_session'] = session_obj.id
-        return jsonify({'url': session_obj.url})
+                    'quantity': 1,
+                }],
+                mode='subscription',
+                success_url=f'{current_url}/account?upgraded=true',
+                cancel_url=f'{current_url}/bucket?cancel=true',
+                customer_email=current_user.email,
+            )
+            # Store session ID in user data to verify on success
+            if current_user.id in USERS:
+                USERS[current_user.id]['stripe_checkout_session'] = session_obj.id
+            return jsonify({'url': session_obj.url})
+        except stripe.error.InvalidRequestError as e:
+            print(f"Stripe InvalidRequestError: {e}")
+            return jsonify({'error': 'Payment configuration error. Please try again or contact support.'}), 500
+        except stripe.error.AuthenticationError as e:
+            print(f"Stripe AuthenticationError: {e}")
+            return jsonify({'error': 'Payment system authentication failed. Please contact support.'}), 500
+        except stripe.error.APIError as e:
+            print(f"Stripe APIError: {e}")
+            return jsonify({'error': f'Payment error: {str(e)}'}), 500
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Unexpected error in checkout_pro: {e}")
+        return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
 @app.route('/api/checkout-enterprise', methods=['POST'])
 @login_required
