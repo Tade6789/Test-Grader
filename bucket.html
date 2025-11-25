@@ -527,6 +527,7 @@
 
         <div class="nav-links">
             <a href="/">← Back Home</a>
+            <a href="/account">👤 My Account</a>
             <a href="/stats">📊 Stats</a>
             <a href="/database">🗄️ Database</a>
             <a href="/teacher">🎓 Console</a>
@@ -534,6 +535,10 @@
     </div>
 
     <script>
+        function goToSignup() {
+            window.location.href = '/auth';
+        }
+
         async function upgradeToPro() {
             try {
                 const response = await fetch('/api/checkout-pro', {
@@ -542,6 +547,11 @@
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        // Not logged in
+                        window.location.href = '/auth';
+                        return;
+                    }
                     const data = await response.json();
                     alert('Error: ' + (data.error || 'Unable to process payment'));
                     return;
