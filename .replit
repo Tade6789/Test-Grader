@@ -1,4 +1,4 @@
-modules = ["web", "python-3.11"]
+modules = ["web", "python-3.11", "postgresql-16"]
 [agent]
 expertMode = true
 integrations = ["stripe:1.0.0"]
@@ -44,7 +44,7 @@ localPort = 35291
 externalPort = 3001
 
 [[ports]]
-localPort = 35431
+localPort = 38283
 externalPort = 3003
 
 [[ports]]

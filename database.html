@@ -401,15 +401,16 @@
                     return;
                 }
 
-                let html = '<table><thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Password (Hashed)</th><th>Plan</th><th>Joined</th></tr></thead><tbody>';
+                let html = '<table><thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Password</th><th>Plan</th><th>Joined</th></tr></thead><tbody>';
                 data.users.forEach(user => {
-                    const passwordDisplay = user.password.substring(0, 30) + '...';
+                    const planClass = user.plan === 'pro' ? 'status-active' : (user.plan === 'enterprise' ? 'grade-a' : '');
+                    const planIcon = user.plan === 'pro' ? '⭐' : (user.plan === 'enterprise' ? '🏆' : '');
                     html += `<tr>
                         <td><strong>${user.id}</strong></td>
                         <td>${user.name}</td>
                         <td>${user.email}</td>
-                        <td><code style="font-size: 0.85rem; background: #f5f5f5; padding: 0.3rem 0.5rem; border-radius: 3px;">${passwordDisplay}</code></td>
-                        <td><span class="status-badge ${user.plan === 'pro' ? 'status-active' : ''}">${user.plan}</span></td>
+                        <td><code style="font-size: 0.85rem; background: #f5f5f5; padding: 0.3rem 0.5rem; border-radius: 3px;">🔒 [Encrypted]</code></td>
+                        <td><span class="status-badge ${planClass}">${planIcon} ${user.plan.toUpperCase()}</span></td>
                         <td class="timestamp">${user.created_at || 'N/A'}</td>
                     </tr>`;
                 });

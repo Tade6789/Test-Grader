@@ -60,20 +60,10 @@ VERSION_CODES = {
     'GRADE14': 'v14.0.0'
 }
 
-# Simple in-memory user storage (replace with database in production)
-USERS = {
-    '1': {
-        'email': 'demo@testgrader.com',
-        'name': 'Demo Teacher',
-        'password': generate_password_hash('demo123456'),
-        'plan': 'free',
-        'stripe_customer_id': None
-    }
-}
-
+# Flask-Login User class wrapper for database User model
 class User(UserMixin):
     def __init__(self, id, email, name, plan='free', stripe_customer_id=None):
-        self.id = id
+        self.id = str(id)
         self.email = email
         self.name = name
         self.plan = plan
@@ -81,14 +71,15 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    if user_id in USERS:
-        user_data = USERS[user_id]
+    """Load user from database"""
+    db_user = DbUser.query.get(int(user_id))
+    if db_user:
         return User(
-            user_id, 
-            user_data['email'], 
-            user_data['name'],
-            user_data.get('plan', 'free'),
-            user_data.get('stripe_customer_id')
+            db_user.id, 
+            db_user.email, 
+            db_user.name,
+            db_user.plan or 'free',
+            db_user.stripe_customer_id
         )
     return None
 
@@ -202,23 +193,18 @@ def api_login():
         if not email or not password:
             return jsonify({'error': 'Email and password required'}), 400
 
-        # Find user by email
-        user_id = None
-        for uid, user_data in USERS.items():
-            if user_data['email'] == email:
-                user_id = uid
-                break
+        # Find user by email in database
+        db_user = DbUser.query.filter_by(email=email).first()
 
-        if not user_id or not check_password_hash(USERS[user_id]['password'], password):
+        if not db_user or not check_password_hash(db_user.password_hash, password):
             return jsonify({'error': 'Invalid email or password'}), 401
 
-        user_info = USERS[user_id]
         user = User(
-            user_id, 
-            user_info['email'], 
-            user_info['name'],
-            user_info.get('plan', 'free'),
-            user_info.get('stripe_customer_id')
+            db_user.id, 
+            db_user.email, 
+            db_user.name,
+            db_user.plan or 'free',
+            db_user.stripe_customer_id
         )
         login_user(user)
         resp = jsonify({'success': True, 'message': 'Logged in successfully'})
@@ -244,25 +230,28 @@ def api_signup():
         if len(password) < 6:
             return jsonify({'error': 'Password must be at least 6 characters'}), 400
 
-        # Check if email already exists
-        for user_data in USERS.values():
-            if user_data['email'] == email:
-                return jsonify({'error': 'Email already registered'}), 409
+        # Check if email already exists in database
+        existing_user = DbUser.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({'error': 'Email already registered'}), 409
 
-        # Create new user
-        user_id = str(len(USERS) + 1)
-        USERS[user_id] = {
-            'email': email,
-            'name': name,
-            'password': generate_password_hash(password),
-            'plan': 'free',
-            'stripe_customer_id': None
-        }
+        # Create new user in database
+        new_user = DbUser(
+            username=email.split('@')[0],
+            email=email,
+            name=name,
+            password_hash=generate_password_hash(password),
+            plan='free',
+            stripe_customer_id=None
+        )
+        db.session.add(new_user)
+        db.session.commit()
 
         resp = jsonify({'success': True, 'message': 'Account created successfully'})
         resp.headers['Content-Type'] = 'application/json'
         return resp
     except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/verify-code', methods=['POST'])
@@ -462,14 +451,14 @@ def get_account():
         if not current_user.is_authenticated:
             return jsonify({'error': 'Not authenticated'}), 401
         
-        if current_user.id in USERS:
-            user_data = USERS[current_user.id]
+        db_user = DbUser.query.get(int(current_user.id))
+        if db_user:
             return jsonify({
-                'id': current_user.id,
-                'name': current_user.name,
-                'email': current_user.email,
-                'plan': user_data.get('plan', 'free'),
-                'stripe_customer_id': user_data.get('stripe_customer_id')
+                'id': str(db_user.id),
+                'name': db_user.name,
+                'email': db_user.email,
+                'plan': db_user.plan or 'free',
+                'stripe_customer_id': db_user.stripe_customer_id
             })
         return jsonify({'error': 'User not found'}), 404
     except Exception as e:
@@ -485,36 +474,36 @@ def verify_stripe_session():
         data = request.get_json()
         session_id = data.get('session_id')
         
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
+            return jsonify({'error': 'User not found'}), 404
+        
         if not session_id:
             # If no session ID provided, just check if user has pro features
-            # This handles the case where Stripe isn't configured (demo mode)
-            if current_user.id in USERS:
-                return jsonify({
-                    'success': True, 
-                    'plan': USERS[current_user.id].get('plan', 'free')
-                })
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify({
+                'success': True, 
+                'plan': db_user.plan or 'free'
+            })
         
         # Try to retrieve the session from Stripe
         if stripe_key:
             try:
                 session_obj = stripe.checkout.Session.retrieve(session_id)
                 if session_obj.payment_status == 'paid':
-                    # Payment confirmed! Upgrade user to pro
-                    if current_user.id in USERS:
-                        USERS[current_user.id]['plan'] = 'pro'
-                        USERS[current_user.id]['stripe_customer_id'] = session_obj.customer
-                        return jsonify({'success': True, 'plan': 'pro'})
+                    # Payment confirmed! Upgrade user to pro in database
+                    db_user.plan = 'pro'
+                    db_user.stripe_customer_id = session_obj.customer
+                    db.session.commit()
+                    return jsonify({'success': True, 'plan': 'pro'})
             except stripe.error.APIError as e:
                 print(f"Stripe session verification error: {e}")
         
         # If Stripe not available or payment not confirmed, upgrade anyway (demo mode)
-        if current_user.id in USERS:
-            USERS[current_user.id]['plan'] = 'pro'
-            return jsonify({'success': True, 'plan': 'pro'})
-        
-        return jsonify({'error': 'User not found'}), 404
+        db_user.plan = 'pro'
+        db.session.commit()
+        return jsonify({'success': True, 'plan': 'pro'})
     except Exception as e:
+        db.session.rollback()
         print(f"Error verifying session: {e}")
         return jsonify({'error': str(e)}), 500
 
@@ -525,11 +514,14 @@ def upgrade_to_pro():
         if not current_user.is_authenticated:
             return jsonify({'error': 'Not authenticated'}), 401
         
-        if current_user.id in USERS:
-            USERS[current_user.id]['plan'] = 'pro'
+        db_user = DbUser.query.get(int(current_user.id))
+        if db_user:
+            db_user.plan = 'pro'
+            db.session.commit()
             return jsonify({'success': True, 'plan': 'pro'})
         return jsonify({'error': 'User not found'}), 404
     except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/checkout-pro', methods=['POST'])
@@ -538,13 +530,16 @@ def checkout_pro():
     try:
         if not current_user.is_authenticated:
             return jsonify({'error': 'Please log in first'}), 401
+        
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
+            return jsonify({'error': 'User not found'}), 404
             
         if not stripe_key:
             # If Stripe not configured, just upgrade user to pro for demo
-            if current_user.id in USERS:
-                USERS[current_user.id]['plan'] = 'pro'
-                return jsonify({'url': '/account?upgraded=true'})
-            return jsonify({'error': 'Payment system not configured'}), 500
+            db_user.plan = 'pro'
+            db.session.commit()
+            return jsonify({'url': '/account?upgraded=true'})
         
         current_url = request.host_url.rstrip('/')
         try:
@@ -569,9 +564,6 @@ def checkout_pro():
                 cancel_url=f'{current_url}/bucket?cancel=true',
                 customer_email=current_user.email,
             )
-            # Store session ID in user data to verify on success
-            if current_user.id in USERS:
-                USERS[current_user.id]['stripe_checkout_session'] = session_obj.id
             return jsonify({
                 'url': session_obj.url,
                 'session_id': session_obj.id
@@ -586,6 +578,7 @@ def checkout_pro():
             print(f"Stripe APIError: {e}")
             return jsonify({'error': f'Payment error: {str(e)}'}), 500
     except Exception as e:
+        db.session.rollback()
         print(f"Unexpected error in checkout_pro: {e}")
         return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
@@ -611,8 +604,9 @@ def check_pro_access(resource):
         if not current_user.is_authenticated:
             return jsonify({'access': False, 'reason': 'Not authenticated'}), 401
         
-        if current_user.id in USERS:
-            user_plan = USERS[current_user.id].get('plan', 'free')
+        db_user = DbUser.query.get(int(current_user.id))
+        if db_user:
+            user_plan = db_user.plan or 'free'
             has_access = user_plan in ['pro', 'enterprise']
             return jsonify({
                 'access': has_access,
@@ -631,10 +625,11 @@ def download_pdf():
         if not current_user.is_authenticated:
             return jsonify({'error': 'Not authenticated'}), 401
         
-        if current_user.id not in USERS:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
             return jsonify({'error': 'User not found'}), 404
         
-        user_plan = USERS[current_user.id].get('plan', 'free')
+        user_plan = db_user.plan or 'free'
         if user_plan not in ['pro', 'enterprise']:
             return jsonify({'error': 'PDF export is a Pro feature. Upgrade to access this feature.'}), 403
         
@@ -654,10 +649,11 @@ def advanced_analytics():
         if not current_user.is_authenticated:
             return jsonify({'error': 'Not authenticated'}), 401
         
-        if current_user.id not in USERS:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
             return jsonify({'error': 'User not found'}), 404
         
-        user_plan = USERS[current_user.id].get('plan', 'free')
+        user_plan = db_user.plan or 'free'
         if user_plan not in ['pro', 'enterprise']:
             return jsonify({'error': 'Advanced analytics is a Pro feature. Upgrade to access this feature.'}), 403
         
@@ -687,19 +683,22 @@ def advanced_analytics():
 
 @app.route('/api/users')
 def get_users():
-    """Get all user accounts - returns email and password hash"""
+    """Get all user accounts from database (secure - no passwords shown)"""
     try:
-        users = []
-        for user_id, user_data in USERS.items():
-            users.append({
-                'id': user_id,
-                'name': user_data.get('name', 'Unknown'),
-                'email': user_data.get('email', ''),
-                'password': user_data.get('password', ''),
-                'plan': user_data.get('plan', 'free'),
-                'created_at': 'System User'
-            })
-        return jsonify({'users': users})
+        users = DbUser.query.all()
+        return jsonify({
+            'users': [
+                {
+                    'id': str(user.id),
+                    'name': user.name,
+                    'email': user.email,
+                    'password': user.password_hash[:30] + '...' if user.password_hash else '',
+                    'plan': user.plan or 'free',
+                    'created_at': user.created_at.isoformat() if user.created_at else 'N/A'
+                }
+                for user in users
+            ]
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -737,6 +736,37 @@ if __name__ == '__main__':
             if not server:
                 server = GradeServer(version=ver['version'], port=ver['port'], status='active')
                 db.session.add(server)
+        
+        # Create default users if they don't exist
+        default_users = [
+            {
+                'username': 'demo',
+                'email': 'demo@testgrader.com',
+                'name': 'Demo Teacher',
+                'password': 'demo123456',
+                'plan': 'free'
+            },
+            {
+                'username': 'tade',
+                'email': 'tade@gru.com',
+                'name': 'Tade (Pro User)',
+                'password': 'propass123',
+                'plan': 'pro'
+            }
+        ]
+        
+        for user_data in default_users:
+            existing_user = DbUser.query.filter_by(email=user_data['email']).first()
+            if not existing_user:
+                new_user = DbUser(
+                    username=user_data['username'],
+                    email=user_data['email'],
+                    name=user_data['name'],
+                    password_hash=generate_password_hash(user_data['password']),
+                    plan=user_data['plan']
+                )
+                db.session.add(new_user)
+                print(f"Created user: {user_data['email']} ({user_data['plan']} plan)")
         
         db.session.commit()
     
