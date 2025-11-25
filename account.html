@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #4c3f91;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #4c3f91;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #4c3f91;
+            padding-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-free {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .plan-pro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .plan-enterprise {
+            background: #ffd54f;
+            color: #333;
+        }
+
+        .upgrade-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .upgrade-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .upgrade-section p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4c3f91;
+            border: 2px solid #4c3f91;
+        }
+
+        .btn-secondary:hover {
+            background: #4c3f91;
+            color: white;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-buttons a {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #4c3f91;
+            color: #4c3f91;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-buttons a:hover {
+            background: #4c3f91;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .upgrade-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>👤 My Account</h1>
+            <p>Manage your Test Grader account and subscription</p>
+        </header>
+
+        <div class="success-message" id="successMessage">
+            ✓ Congratulations! Your account has been upgraded to Pro! 🎉
+        </div>
+
+        <div class="card">
+            <h2>📋 Account Information</h2>
+            <div class="loading">Loading account information...</div>
+            <div class="profile-info" id="profileInfo" style="display: none;">
+                <div class="info-item">
+                    <div class="info-label">Name</div>
+                    <div class="info-value" id="userName">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="userEmail">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Current Plan</div>
+                    <div class="info-value">
+                        <span class="plan-badge" id="userPlan">Free</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="proCard" style="display: none;">
+            <h2>⭐ Pro Plan Benefits</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> Up to 1,000 grades/month
+                </div>
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> Advanced statistics
+                </div>
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> CSV & PDF export
+                </div>
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> Grade history tracking
+                </div>
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> Priority support
+                </div>
+                <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+                    <strong>✓</strong> All 5 grader versions
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="upgradeCard" style="display: none;">
+            <div class="upgrade-section">
+                <h3>Upgrade Your Account</h3>
+                <p>Get access to advanced features, higher grade limits, and priority support</p>
+                <a href="/bucket" class="btn btn-primary">View Pricing Plans</a>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/">← Home</a>
+            <a href="/teacher">📚 Teacher Console</a>
+            <a href="/stats">📊 Statistics</a>
+            <a href="/bucket">💰 Pricing</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Test Grader - Professional Grade Management System</p>
+        </footer>
+    </div>
+
+    <script>
+        async function loadAccount() {
+            try {
+                const response = await fetch('/api/account');
+                if (!response.ok) throw new Error('Failed to load account');
+
+                const data = await response.json();
+                
+                // Show account info
+                document.getElementById('userName').textContent = data.name;
+                document.getElementById('userEmail').textContent = data.email;
+                
+                const planBadge = document.getElementById('userPlan');
+                if (data.plan === 'pro') {
+                    planBadge.textContent = 'Pro';
+                    planBadge.className = 'plan-badge plan-pro';
+                } else if (data.plan === 'enterprise') {
+                    planBadge.textContent = 'Enterprise';
+                    planBadge.className = 'plan-badge plan-enterprise';
+                } else {
+                    planBadge.textContent = 'Free';
+                    planBadge.className = 'plan-badge plan-free';
+                }
+
+                // Show/hide upgrade section
+                if (data.plan === 'free') {
+                    document.getElementById('upgradeCard').style.display = 'block';
+                    document.getElementById('proCard').style.display = 'none';
+                } else if (data.plan === 'pro') {
+                    document.getElementById('upgradeCard').style.display = 'none';
+                    document.getElementById('proCard').style.display = 'block';
+                }
+
+                document.querySelector('.loading').style.display = 'none';
+                document.getElementById('profileInfo').style.display = 'grid';
+            } catch (error) {
+                console.error('Error loading account:', error);
+                document.querySelector('.loading').textContent = 'Error loading account information';
+            }
+        }
+
+        // Check for upgrade success
+        function checkUpgradeSuccess() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('upgraded') === 'true') {
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, '/account');
+                }, 2000);
+            }
+        }
+
+        // Load on page load
+        window.addEventListener('load', () => {
+            checkUpgradeSuccess();
+            loadAccount();
+        });
+    </script>
+</body>
+
+</html>

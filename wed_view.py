@@ -64,16 +64,24 @@ VERSION_CODES = {
 USERS = {}
 
 class User(UserMixin):
-    def __init__(self, id, email, name):
+    def __init__(self, id, email, name, plan='free', stripe_customer_id=None):
         self.id = id
         self.email = email
         self.name = name
+        self.plan = plan
+        self.stripe_customer_id = stripe_customer_id
 
 @login_manager.user_loader
 def load_user(user_id):
     if user_id in USERS:
         user_data = USERS[user_id]
-        return User(user_id, user_data['email'], user_data['name'])
+        return User(
+            user_id, 
+            user_data['email'], 
+            user_data['name'],
+            user_data.get('plan', 'free'),
+            user_data.get('stripe_customer_id')
+        )
     return None
 
 # Grading system logic
@@ -196,7 +204,14 @@ def api_login():
         if not user_id or not check_password_hash(USERS[user_id]['password'], password):
             return jsonify({'error': 'Invalid email or password'}), 401
 
-        user = User(user_id, USERS[user_id]['email'], USERS[user_id]['name'])
+        user_info = USERS[user_id]
+        user = User(
+            user_id, 
+            user_info['email'], 
+            user_info['name'],
+            user_info.get('plan', 'free'),
+            user_info.get('stripe_customer_id')
+        )
         login_user(user)
         resp = jsonify({'success': True, 'message': 'Logged in successfully'})
         resp.headers['Content-Type'] = 'application/json'
@@ -231,7 +246,9 @@ def api_signup():
         USERS[user_id] = {
             'email': email,
             'name': name,
-            'password': generate_password_hash(password)
+            'password': generate_password_hash(password),
+            'plan': 'free',
+            'stripe_customer_id': None
         }
 
         resp = jsonify({'success': True, 'message': 'Account created successfully'})
@@ -405,12 +422,56 @@ def bucket_page():
     except:
         return render_template('bucket.html')
 
+@app.route('/account')
+@login_required
+def account_page():
+    """Serve the user account page"""
+    try:
+        with open('account.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('account.html')
+
+@app.route('/api/account')
+@login_required
+def get_account():
+    """Get user account information"""
+    try:
+        if current_user.id in USERS:
+            user_data = USERS[current_user.id]
+            return jsonify({
+                'id': current_user.id,
+                'name': current_user.name,
+                'email': current_user.email,
+                'plan': user_data.get('plan', 'free'),
+                'stripe_customer_id': user_data.get('stripe_customer_id')
+            })
+        return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/upgrade-to-pro', methods=['POST'])
+@login_required
+def upgrade_to_pro():
+    """Upgrade user to pro plan (after payment confirmation)"""
+    try:
+        if current_user.id in USERS:
+            USERS[current_user.id]['plan'] = 'pro'
+            return jsonify({'success': True, 'plan': 'pro'})
+        return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/checkout-pro', methods=['POST'])
 @login_required
 def checkout_pro():
     """Create checkout session for Pro plan ($9/month)"""
     try:
         if not stripe_key:
+            # If Stripe not configured, just upgrade user to pro for demo
+            if current_user.id in USERS:
+                USERS[current_user.id]['plan'] = 'pro'
+                return jsonify({'url': '/account?upgraded=true'})
             return jsonify({'error': 'Payment system not configured'}), 500
         
         current_url = request.host_url.rstrip('/')
@@ -431,10 +492,13 @@ def checkout_pro():
                 'quantity': 1,
             }],
             mode='subscription',
-            success_url=f'{current_url}/bucket?success=true',
+            success_url=f'{current_url}/account?upgraded=true',
             cancel_url=f'{current_url}/bucket?cancel=true',
             customer_email=current_user.email if current_user.is_authenticated else None,
         )
+        # Store session ID in user data to verify on success
+        if current_user.id in USERS:
+            USERS[current_user.id]['stripe_checkout_session'] = session_obj.id
         return jsonify({'url': session_obj.url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
