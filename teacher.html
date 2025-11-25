@@ -691,12 +691,21 @@
         async function exportPDF() {
             try {
                 const response = await fetch('/api/download-pdf', { method: 'POST' });
-                const data = await response.json();
-                if (response.ok) {
-                    alert('PDF report generated! ' + data.message);
-                } else {
+                if (!response.ok) {
+                    const data = await response.json();
                     alert(data.error || 'Error generating PDF');
+                    return;
                 }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `grades_report_${new Date().toISOString().slice(0,10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
             } catch (error) {
                 alert('Error: ' + error.message);
             }

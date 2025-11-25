@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -633,12 +633,96 @@ def download_pdf():
         if user_plan not in ['pro', 'enterprise']:
             return jsonify({'error': 'PDF export is a Pro feature. Upgrade to access this feature.'}), 403
         
-        # Generate PDF (placeholder - in real app would generate actual PDF)
-        return jsonify({
-            'success': True,
-            'message': 'PDF export would be generated here',
-            'url': '/download/grades-report.pdf'
-        })
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+        from reportlab.lib import colors
+        from io import BytesIO
+        
+        # Get grade records
+        records = GradeReport.query.filter_by(user_id=current_user.id).all()
+        
+        # Create PDF in memory
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+        story = []
+        
+        # Title
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#4c3f91'),
+            spaceAfter=30,
+            alignment=1
+        )
+        story.append(Paragraph('Grade Report', title_style))
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Add metadata
+        info_style = ParagraphStyle(
+            'Info',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.grey,
+        )
+        story.append(Paragraph(f'<b>Teacher:</b> {db_user.name}', info_style))
+        story.append(Paragraph(f'<b>Generated:</b> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', info_style))
+        story.append(Paragraph(f'<b>Total Records:</b> {len(records)}', info_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        if records:
+            # Calculate stats
+            avg_score = sum(r.score for r in records) / len(records)
+            avg_gpa = sum(r.gpa for r in records) / len(records)
+            
+            story.append(Paragraph(f'<b>Average Score:</b> {avg_score:.1f}%', info_style))
+            story.append(Paragraph(f'<b>Average GPA:</b> {avg_gpa:.2f}', info_style))
+            story.append(Spacer(1, 0.3*inch))
+            
+            # Create table
+            table_data = [['Student', 'Subject', 'Score', 'Grade', 'GPA', 'Date']]
+            for record in records:
+                table_data.append([
+                    record.student_name or 'N/A',
+                    record.subject or 'N/A',
+                    f'{record.score:.1f}%',
+                    record.letter_grade or 'N/A',
+                    f'{record.gpa:.2f}',
+                    record.created_at.strftime('%Y-%m-%d') if record.created_at else 'N/A'
+                ])
+            
+            table = Table(table_data, colWidths=[1.5*inch, 1.2*inch, 0.8*inch, 0.6*inch, 0.6*inch, 0.8*inch])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4c3f91')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')])
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph('No grade records found.', styles['Normal']))
+        
+        # Build PDF
+        doc.build(story)
+        buffer.seek(0)
+        
+        # Return as file download
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'grades_report_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+        )
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
