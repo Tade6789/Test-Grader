@@ -20,7 +20,8 @@ VERSION_CODES = {
     'GRADE10': 'v10.0.0',
     'GRADE11': 'v11.0.0',
     'GRADE12': 'v12.0.0',
-    'GRADE13': 'v13.0.0'
+    'GRADE13': 'v13.0.0',
+    'GRADE14': 'v14.0.0'
 }
 
 # Simple in-memory user storage (replace with database in production)
