@@ -534,6 +534,7 @@
         </div>
     </div>
 
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
         function goToSignup() {
             window.location.href = '/auth';
@@ -541,43 +542,98 @@
 
         async function upgradeToPro() {
             try {
+                console.log('Starting Pro upgrade...');
+                
                 // First, check if user is logged in by checking the account endpoint
                 const checkResponse = await fetch('/api/account', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                if (checkResponse.status === 401 || checkResponse.status === 302) {
-                    // Not logged in, redirect to auth
+                if (checkResponse.status === 401) {
+                    console.log('User not logged in, redirecting to auth');
                     window.location.href = '/auth';
                     return;
                 }
 
                 // User is logged in, proceed with checkout
+                console.log('Fetching Stripe checkout URL...');
                 const response = await fetch('/api/checkout-pro', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
+                const data = await response.json();
+                console.log('Checkout response:', data);
+
                 if (!response.ok) {
-                    const data = await response.json();
-                    alert('Error: ' + (data.error || 'Unable to process payment'));
+                    console.error('Checkout error:', data);
+                    alert('❌ Error: ' + (data.error || 'Unable to process payment'));
                     return;
                 }
 
-                const data = await response.json();
                 if (data.url) {
+                    console.log('Redirecting to Stripe:', data.url);
                     window.location.href = data.url;
+                } else if (data.success) {
+                    console.log('Demo mode: upgraded to Pro');
+                    alert('✓ Upgraded to Pro plan! Redirecting...');
+                    window.location.href = '/account?upgraded=true';
                 } else {
-                    alert('Payment system error. Please try again.');
+                    console.error('Invalid response:', data);
+                    alert('❌ Payment system error. Please try again.');
                 }
             } catch (error) {
-                alert('Payment error: ' + error.message);
+                console.error('Payment error:', error);
+                alert('❌ Payment error: ' + error.message);
             }
         }
 
-        function contactSales() {
-            window.location.href = 'mailto:support@testgrader.com?subject=Enterprise%20Plan%20Inquiry&body=Hello,%20I%20am%20interested%20in%20the%20Enterprise%20Plan%20for%20Test%20Grader.';
+        async function contactSales() {
+            try {
+                console.log('Starting Enterprise checkout...');
+                
+                // First, check if user is logged in
+                const checkResponse = await fetch('/api/account', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (checkResponse.status === 401) {
+                    console.log('User not logged in, redirecting to auth');
+                    window.location.href = '/auth';
+                    return;
+                }
+
+                // User is logged in, proceed with enterprise checkout
+                console.log('Fetching Enterprise checkout...');
+                const response = await fetch('/api/checkout-enterprise', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                console.log('Enterprise response:', data);
+
+                if (!response.ok) {
+                    console.error('Enterprise error:', data);
+                    alert('❌ Error: ' + (data.error || 'Unable to contact sales'));
+                    return;
+                }
+
+                if (data.email) {
+                    // Open email with pre-filled subject and body
+                    const subject = 'Enterprise Plan Inquiry - Test Grader';
+                    const body = `Hello,\n\nI am interested in the Enterprise Plan for Test Grader.\n\nPlease contact me with pricing and availability information.\n\nThank you.`;
+                    window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                } else {
+                    console.error('Invalid response:', data);
+                    alert('❌ Could not open contact form. Please try again.');
+                }
+            } catch (error) {
+                console.error('Enterprise error:', error);
+                alert('❌ Error: ' + error.message);
+            }
         }
 
         // Show success/cancel messages
