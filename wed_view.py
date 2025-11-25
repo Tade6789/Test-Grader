@@ -250,14 +250,20 @@ def grade_test():
         score = float(data.get('score', 0))
         name = data.get('name', '')
         subject = data.get('subject', '')
+        version = data.get('version', 'v14.0.0')
 
         if not 0 <= score <= 100:
             return jsonify({'error': 'Score must be between 0 and 100'}), 400
 
         letter_grade, message, gpa = determine_grade(score)
 
-        # Save to database
-        save_grade_report(score, letter_grade, message, gpa, name, subject)
+        # Find the server by version
+        server = GradeServer.query.filter_by(version=version).first()
+        if not server:
+            return jsonify({'error': f'Version {version} not found'}), 400
+
+        # Save to database with server_id
+        save_grade_report(score, letter_grade, message, gpa, name, subject, server.id)
 
         return jsonify({
             'success': True,
@@ -267,6 +273,7 @@ def grade_test():
             'gpa': gpa,
             'name': name,
             'subject': subject,
+            'version': version,
             'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
     except ValueError:
@@ -372,12 +379,22 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         
-        # Create default server if not exists
-        server = GradeServer.query.filter_by(version='v14.0.0').first()
-        if not server:
-            server = GradeServer(version='v14.0.0', port=5000, status='active')
-            db.session.add(server)
-            db.session.commit()
+        # Create default servers for all versions if they don't exist
+        versions = [
+            {'version': 'v10.0.0', 'port': 5010},
+            {'version': 'v11.0.0', 'port': 5011},
+            {'version': 'v12.0.0', 'port': 5012},
+            {'version': 'v13.0.0', 'port': 5013},
+            {'version': 'v14.0.0', 'port': 5000},
+        ]
+        
+        for ver in versions:
+            server = GradeServer.query.filter_by(version=ver['version']).first()
+            if not server:
+                server = GradeServer(version=ver['version'], port=ver['port'], status='active')
+                db.session.add(server)
+        
+        db.session.commit()
     
     print("🎓 Test Grader Teacher Console Server")
     print("Starting server on http://0.0.0.0:5000")

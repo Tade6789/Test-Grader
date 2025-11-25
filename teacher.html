@@ -358,6 +358,18 @@
                 <h2>📝 Grade a Test</h2>
                 <form id="gradeForm">
                     <div class="form-group">
+                        <label for="version">Grader Version</label>
+                        <select id="version" required>
+                            <option value="">Select a version...</option>
+                            <option value="v10.0.0">v10.0.0 - File Storage</option>
+                            <option value="v11.0.0">v11.0.0 - Database Storage</option>
+                            <option value="v12.0.0">v12.0.0 - CSV Export</option>
+                            <option value="v13.0.0">v13.0.0 - Advanced Analytics</option>
+                            <option value="v14.0.0" selected>v14.0.0 - Current (PostgreSQL)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="studentName">Student Name</label>
                         <input type="text" id="studentName" placeholder="Enter student name" required>
                     </div>
@@ -513,6 +525,7 @@
         document.getElementById('gradeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const version = document.getElementById('version').value;
             const studentName = document.getElementById('studentName').value;
             const subject = document.getElementById('subject').value;
             const score = parseFloat(document.getElementById('score').value);
@@ -529,6 +542,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        version: version,
                         name: studentName,
                         subject: subject,
                         score: score
@@ -551,7 +565,15 @@
                 resultBox.classList.add('show');
 
                 document.getElementById('gradeForm').reset();
+                document.getElementById('version').value = 'v14.0.0';
                 document.getElementById('studentName').focus();
+                
+                // Refresh history to show new grade immediately
+                setTimeout(() => {
+                    if (document.getElementById('history-section').style.display !== 'none') {
+                        loadHistory();
+                    }
+                }, 500);
             } catch (error) {
                 errorBox.textContent = 'Error: ' + error.message;
                 errorBox.classList.add('show');
@@ -566,27 +588,18 @@
                 const response = await fetch('/api/history');
                 const data = await response.json();
 
-                if (data.history === 'No grade history found yet.') {
+                if (!data.records || data.records.length === 0) {
                     historyContainer.innerHTML = '<div class="no-history">📭 No grades recorded yet. Grade your first student to see history here!</div>';
                     return;
                 }
 
-                const entries = data.history.split('============================================================');
-                const gradedItems = entries.filter(e => e.trim().length > 0);
-
-                if (gradedItems.length === 0) {
-                    historyContainer.innerHTML = '<div class="no-history">📭 No grades recorded yet.</div>';
-                    return;
-                }
-
                 let html = '';
-                gradedItems.forEach(entry => {
-                    const lines = entry.trim().split('\n');
-                    const student = lines.find(l => l.startsWith('Student:'))?.replace('Student:', '').trim() || 'Anonymous';
-                    const subject = lines.find(l => l.startsWith('Subject:'))?.replace('Subject:', '').trim() || 'General';
-                    const score = lines.find(l => l.startsWith('Score:'))?.replace('Score:', '').trim() || 'N/A';
-                    const grade = lines.find(l => l.startsWith('Letter Grade:'))?.replace('Letter Grade:', '').trim() || 'N/A';
-                    const timestamp = lines.find(l => l.startsWith('Timestamp:'))?.replace('Timestamp:', '').trim() || '';
+                data.records.forEach(entry => {
+                    const student = entry.student_name || 'Anonymous';
+                    const subject = entry.subject || 'General';
+                    const score = entry.score || 'N/A';
+                    const grade = entry.letter_grade || 'N/A';
+                    const timestamp = entry.created_at ? new Date(entry.created_at).toLocaleString() : '';
 
                     html += `
                         <div class="history-item">
@@ -596,7 +609,7 @@
                             </div>
                             <div class="history-item-details">
                                 <div class="history-item-detail"><strong>Subject:</strong> ${subject}</div>
-                                <div class="history-item-detail"><strong>Score:</strong> ${score}</div>
+                                <div class="history-item-detail"><strong>Score:</strong> ${score.toFixed(2)}/100</div>
                             </div>
                             ${timestamp ? `<div style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">📅 ${timestamp}</div>` : ''}
                         </div>
