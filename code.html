@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Verification - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            color: #4c3f91;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4c3f91;
+            box-shadow: 0 0 8px rgba(76, 63, 145, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .info-box h3 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+            color: #555;
+        }
+
+        .info-box li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box li:before {
+            content: "✓";
+            color: #2196f3;
+            font-weight: bold;
+        }
+
+        .code-item {
+            background: #f5f5f5;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #4c3f91;
+        }
+
+        .nav-button {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .nav-button a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-button a:hover {
+            color: #4c3f91;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Code Verification</h1>
+            <p>Enter your version code to access the console</p>
+        </header>
+
+        <div class="error" id="errorBox"></div>
+        <div class="success" id="successBox"></div>
+
+        <form id="codeForm">
+            <div class="form-group">
+                <label for="versionCode">Version Code</label>
+                <input type="text" id="versionCode" placeholder="Enter code (e.g., GRADE10)" required>
+            </div>
+
+            <button type="submit">🔓 Verify Code</button>
+        </form>
+
+        <div class="info-box">
+            <h3>📋 Available Version Codes:</h3>
+            <ul>
+                <li><span class="code-item">GRADE10</span> - Version 10.0.0</li>
+                <li><span class="code-item">GRADE11</span> - Version 11.0.0</li>
+                <li><span class="code-item">GRADE12</span> - Version 12.0.0</li>
+                <li><span class="code-item">GRADE13</span> - Version 13.0.0</li>
+            </ul>
+        </div>
+
+        <div class="nav-button">
+            <a href="/" onclick="logout()">← Back to Home</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Test Grader - Professional Grade Management System</p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('codeForm');
+        const errorBox = document.getElementById('errorBox');
+        const successBox = document.getElementById('successBox');
+        const codeInput = document.getElementById('versionCode');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            errorBox.classList.remove('show');
+            successBox.classList.remove('show');
+
+            const code = codeInput.value.toUpperCase().trim();
+
+            try {
+                const response = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorBox.textContent = data.error || 'Invalid code. Please try again.';
+                    errorBox.classList.add('show');
+                    codeInput.focus();
+                    return;
+                }
+
+                successBox.textContent = `✓ Code verified! Access granted to ${data.version}`;
+                successBox.classList.add('show');
+
+                setTimeout(() => {
+                    window.location.href = '/teacher';
+                }, 1500);
+            } catch (error) {
+                errorBox.textContent = 'Error: ' + error.message;
+                errorBox.classList.add('show');
+            }
+        });
+
+        function logout() {
+            fetch('/api/logout', { method: 'POST' });
+        }
+
+        // Focus on input when page loads
+        window.addEventListener('load', () => {
+            codeInput.focus();
+        });
+    </script>
+</body>
+
+</html>
