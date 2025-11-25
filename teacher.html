@@ -344,11 +344,15 @@
         <header>
             <h1>🎓 Teacher Console</h1>
             <p>Grade students instantly and track their performance</p>
+            <div id="userPlanBadge" style="margin-top: 10px; display: none;">
+                <span id="planBadge" style="background: linear-gradient(135deg, #f5af19, #f12711); color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">⭐ PRO USER</span>
+            </div>
         </header>
 
         <div class="nav-buttons">
             <button class="nav-btn active" onclick="showSection('grading')">Grade Students</button>
             <button class="nav-btn" onclick="showSection('history')">View History</button>
+            <button class="nav-btn pro-only" id="proAnalyticsBtn" onclick="showSection('analytics')" style="display: none;">📈 Pro Analytics</button>
             <button class="nav-btn" onclick="location.href='/'">Download Page</button>
             <button class="nav-btn" onclick="logout()">Logout</button>
         </div>
@@ -496,6 +500,76 @@
                 <button class="refresh-btn" onclick="loadHistory()">🔄 Refresh History</button>
             </div>
         </div>
+
+        <!-- Pro Analytics Section -->
+        <div class="content" id="analytics-section" style="display: none;">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    📈 Pro Analytics Dashboard
+                    <span style="background: linear-gradient(135deg, #f5af19, #f12711); color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.7rem;">PRO</span>
+                </h2>
+                <div id="analyticsContent" style="margin-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1.5rem; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold;" id="totalGradesCount">0</div>
+                            <div style="opacity: 0.9;">Total Grades</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 1.5rem; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold;" id="avgScoreDisplay">0%</div>
+                            <div style="opacity: 0.9;">Average Score</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f5af19, #f12711); color: white; padding: 1.5rem; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold;" id="avgGpaDisplay">0.00</div>
+                            <div style="opacity: 0.9;">Average GPA</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4c3f91, #7c3aed); color: white; padding: 1.5rem; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold;" id="topGradeDisplay">-</div>
+                            <div style="opacity: 0.9;">Most Common Grade</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: #4c3f91; margin-bottom: 1rem;">Grade Distribution</h3>
+                    <div id="gradeDistribution" style="display: flex; gap: 5px; align-items: flex-end; height: 150px; background: #f9f9f9; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+                        <div style="text-align: center; color: #666;">Loading chart...</div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button onclick="exportPDF()" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            📄 Export PDF Report
+                        </button>
+                        <button onclick="exportCSV()" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            📊 Export CSV Data
+                        </button>
+                        <button onclick="loadAnalytics()" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #f5af19, #f12711); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            🔄 Refresh Analytics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pro Features Upgrade Banner (for free users) -->
+        <div id="upgradeCard" class="card" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-top: 2rem; text-align: center;">
+            <h2 style="color: white; border-bottom-color: rgba(255,255,255,0.3);">⭐ Upgrade to Pro</h2>
+            <p style="margin: 1rem 0; opacity: 0.9;">Unlock advanced analytics, PDF exports, CSV downloads, and more!</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="font-size: 1.5rem;">📈</div>
+                    <div>Advanced Analytics</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="font-size: 1.5rem;">📄</div>
+                    <div>PDF Export</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="font-size: 1.5rem;">📊</div>
+                    <div>CSV Export</div>
+                </div>
+            </div>
+            <button onclick="location.href='/account'" style="margin-top: 1.5rem; padding: 1rem 2rem; background: white; color: #4c3f91; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+                Upgrade Now - $9/month
+            </button>
+        </div>
     </div>
 
     <footer>
@@ -510,15 +584,148 @@
             }
         }
 
+        let userPlan = 'free';
+
         function showSection(section) {
             document.getElementById('grading-section').style.display = section === 'grading' ? 'grid' : 'none';
             document.getElementById('history-section').style.display = section === 'history' ? 'grid' : 'none';
+            document.getElementById('analytics-section').style.display = section === 'analytics' ? 'grid' : 'none';
 
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
             if (section === 'history') {
                 loadHistory();
+            }
+            if (section === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        async function checkUserPlan() {
+            try {
+                const response = await fetch('/api/account');
+                if (response.ok) {
+                    const data = await response.json();
+                    userPlan = data.plan || 'free';
+                    
+                    if (userPlan === 'pro' || userPlan === 'enterprise') {
+                        document.getElementById('userPlanBadge').style.display = 'block';
+                        document.getElementById('proAnalyticsBtn').style.display = 'inline-block';
+                        document.getElementById('upgradeCard').style.display = 'none';
+                        
+                        if (userPlan === 'enterprise') {
+                            document.getElementById('planBadge').textContent = '🏆 ENTERPRISE USER';
+                            document.getElementById('planBadge').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                        }
+                    } else {
+                        document.getElementById('upgradeCard').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user plan:', error);
+            }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/advanced-analytics');
+                if (!response.ok) {
+                    const data = await response.json();
+                    alert(data.error || 'Error loading analytics');
+                    return;
+                }
+                const data = await response.json();
+                
+                document.getElementById('totalGradesCount').textContent = data.total_grades || 0;
+                
+                const historyResponse = await fetch('/api/history');
+                const historyData = await historyResponse.json();
+                
+                if (historyData.records && historyData.records.length > 0) {
+                    const records = historyData.records;
+                    const avgScore = records.reduce((sum, r) => sum + r.score, 0) / records.length;
+                    const avgGpa = records.reduce((sum, r) => sum + r.gpa, 0) / records.length;
+                    
+                    document.getElementById('avgScoreDisplay').textContent = avgScore.toFixed(1) + '%';
+                    document.getElementById('avgGpaDisplay').textContent = avgGpa.toFixed(2);
+                    
+                    const gradeCounts = {};
+                    records.forEach(r => {
+                        gradeCounts[r.letter_grade] = (gradeCounts[r.letter_grade] || 0) + 1;
+                    });
+                    const topGrade = Object.entries(gradeCounts).sort((a, b) => b[1] - a[1])[0];
+                    document.getElementById('topGradeDisplay').textContent = topGrade ? topGrade[0] : '-';
+                    
+                    renderGradeChart(gradeCounts);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function renderGradeChart(gradeCounts) {
+            const container = document.getElementById('gradeDistribution');
+            const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+            const maxCount = Math.max(...Object.values(gradeCounts), 1);
+            
+            let html = '';
+            grades.forEach(grade => {
+                const count = gradeCounts[grade] || 0;
+                const height = count > 0 ? Math.max((count / maxCount) * 100, 10) : 5;
+                const color = grade.startsWith('A') ? '#11998e' : 
+                              grade.startsWith('B') ? '#667eea' : 
+                              grade.startsWith('C') ? '#f5af19' : 
+                              grade.startsWith('D') ? '#f12711' : '#dc3545';
+                html += `
+                    <div style="flex: 1; text-align: center;">
+                        <div style="height: ${height}px; background: ${color}; border-radius: 4px 4px 0 0; margin-bottom: 5px;"></div>
+                        <div style="font-size: 0.75rem; color: #666;">${grade}</div>
+                        <div style="font-size: 0.7rem; color: #999;">${count}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function exportPDF() {
+            try {
+                const response = await fetch('/api/download-pdf', { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('PDF report generated! ' + data.message);
+                } else {
+                    alert(data.error || 'Error generating PDF');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function exportCSV() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                if (!data.records || data.records.length === 0) {
+                    alert('No data to export');
+                    return;
+                }
+                
+                let csv = 'Student,Subject,Score,Grade,GPA,Date\\n';
+                data.records.forEach(r => {
+                    csv += `"${r.student_name}","${r.subject}",${r.score},"${r.letter_grade}",${r.gpa},"${r.created_at}"\\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'grades_export.csv';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Error: ' + error.message);
             }
         }
 
@@ -623,6 +830,7 @@
         }
 
         window.addEventListener('load', () => {
+            checkUserPlan();
             loadHistory();
         });
     </script>
