@@ -6,3 +6,10 @@ flask-login
 flask-wtf
 flask-cors
 werkzeug
+flask
+flask-cors
+flask-login
+flask-wtf
+matplotlib
+numpy
+werkzeug
