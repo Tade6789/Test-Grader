@@ -51,8 +51,13 @@ def save_grade_report(score, letter_grade, gpa, name="", subject=""):
 
 @app.route('/')
 def index():
-    """Serve the main page"""
+    """Serve the download page"""
     return render_template('test.html')
+
+@app.route('/teacher')
+def teacher_console():
+    """Serve the teacher console"""
+    return render_template('teacher.html')
 
 @app.route('/api/grade', methods=['POST'])
 def grade_test():

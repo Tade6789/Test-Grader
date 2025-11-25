@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Console - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #4c3f91;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .card h2 {
+            color: #4c3f91;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #4c3f91;
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #4c3f91;
+            box-shadow: 0 0 5px rgba(76, 63, 145, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-grade {
+            background-color: #4c3f91;
+            color: white;
+        }
+
+        .btn-grade:hover {
+            background-color: #3b2f70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(76, 63, 145, 0.3);
+        }
+
+        .btn-clear {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background-color: #bbb;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .grade-display {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .message {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 5px;
+            font-style: italic;
+            text-align: center;
+            margin-top: 1rem;
+            border-left: 4px solid white;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .history-container {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .history-item {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4c3f91;
+            border-radius: 3px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .history-item-name {
+            color: #4c3f91;
+        }
+
+        .history-item-grade {
+            background-color: #4c3f91;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .history-item-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .history-item-detail {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-item-detail strong {
+            color: #333;
+        }
+
+        .no-history {
+            text-align: center;
+            color: #999;
+            padding: 2rem 1rem;
+        }
+
+        .refresh-btn {
+            background-color: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background-color: #764ba2;
+        }
+
+        footer {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #4c3f91;
+        }
+
+        .nav-btn:hover {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        .nav-btn.active {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Teacher Console</h1>
+            <p>Grade students instantly and track their performance</p>
+        </header>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('grading')">Grade Students</button>
+            <button class="nav-btn" onclick="showSection('history')">View History</button>
+            <button class="nav-btn" onclick="location.href='/'">Download Page</button>
+        </div>
+
+        <div class="content" id="grading-section">
+            <div class="card">
+                <h2>📝 Grade a Test</h2>
+                <form id="gradeForm">
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label>
+                        <input type="text" id="studentName" placeholder="Enter student name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" placeholder="e.g., Math, Science, History" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="score">Test Score (0-100)</label>
+                        <input type="number" id="score" min="0" max="100" step="0.1" placeholder="Enter score"
+                            required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-grade">📊 Grade Test</button>
+                        <button type="reset" class="btn-clear">Clear</button>
+                    </div>
+                </form>
+
+                <div class="error" id="errorMessage"></div>
+
+                <div class="result" id="resultBox">
+                    <h3>Grade Result</h3>
+                    <div class="grade-display" id="gradeDisplay">A+</div>
+                    <div class="result-info">
+                        <div class="info-item">
+                            <div class="info-label">Score</div>
+                            <div class="info-value" id="resultScore">100%</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">GPA</div>
+                            <div class="info-value" id="resultGPA">4.0</div>
+                        </div>
+                    </div>
+                    <div class="message" id="resultMessage">Outstanding! Exceptional mastery!</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Grading Scale</h2>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #4c3f91;">Grade</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #4c3f91;">Range</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #4c3f91;">GPA</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>A+</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">97-100</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">4.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>A</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">93-96</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">4.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>A-</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">90-92</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">3.7</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>B+</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">87-89</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">3.3</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>B</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">83-86</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">3.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>B-</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">80-82</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">2.7</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>C+</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">77-79</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">2.3</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>C</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">73-76</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">2.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>C-</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">70-72</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">1.7</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>D+</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">67-69</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">1.3</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>D</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">63-66</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;"><strong>D-</strong></td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">60-62</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #ddd;">0.7</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem;"><strong>F</strong></td>
+                        <td style="padding: 0.8rem;">0-59</td>
+                        <td style="padding: 0.8rem;">0.0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="content" id="history-section" style="display: none;">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>📚 Grade History</h2>
+                <div class="history-container" id="historyContainer">
+                    <div class="no-history">Loading grade history...</div>
+                </div>
+                <button class="refresh-btn" onclick="loadHistory()">🔄 Refresh History</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Test Grader Teacher Console. Made to help educators grade efficiently.</p>
+    </footer>
+
+    <script>
+        function showSection(section) {
+            document.getElementById('grading-section').style.display = section === 'grading' ? 'grid' : 'none';
+            document.getElementById('history-section').style.display = section === 'history' ? 'grid' : 'none';
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (section === 'history') {
+                loadHistory();
+            }
+        }
+
+        document.getElementById('gradeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const studentName = document.getElementById('studentName').value;
+            const subject = document.getElementById('subject').value;
+            const score = parseFloat(document.getElementById('score').value);
+            const errorBox = document.getElementById('errorMessage');
+            const resultBox = document.getElementById('resultBox');
+
+            errorBox.classList.remove('show');
+            resultBox.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/grade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: studentName,
+                        subject: subject,
+                        score: score
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorBox.textContent = data.error || 'Error grading test';
+                    errorBox.classList.add('show');
+                    return;
+                }
+
+                document.getElementById('gradeDisplay').textContent = data.letter_grade;
+                document.getElementById('resultScore').textContent = data.score.toFixed(1) + '%';
+                document.getElementById('resultGPA').textContent = data.gpa.toFixed(2);
+                document.getElementById('resultMessage').textContent = data.message;
+
+                resultBox.classList.add('show');
+
+                document.getElementById('gradeForm').reset();
+                document.getElementById('studentName').focus();
+            } catch (error) {
+                errorBox.textContent = 'Error: ' + error.message;
+                errorBox.classList.add('show');
+            }
+        });
+
+        async function loadHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.innerHTML = '<div class="no-history">Loading...</div>';
+
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+
+                if (data.history === 'No grade history found yet.') {
+                    historyContainer.innerHTML = '<div class="no-history">📭 No grades recorded yet. Grade your first student to see history here!</div>';
+                    return;
+                }
+
+                const entries = data.history.split('============================================================');
+                const gradedItems = entries.filter(e => e.trim().length > 0);
+
+                if (gradedItems.length === 0) {
+                    historyContainer.innerHTML = '<div class="no-history">📭 No grades recorded yet.</div>';
+                    return;
+                }
+
+                let html = '';
+                gradedItems.forEach(entry => {
+                    const lines = entry.trim().split('\n');
+                    const student = lines.find(l => l.startsWith('Student:'))?.replace('Student:', '').trim() || 'Anonymous';
+                    const subject = lines.find(l => l.startsWith('Subject:'))?.replace('Subject:', '').trim() || 'General';
+                    const score = lines.find(l => l.startsWith('Score:'))?.replace('Score:', '').trim() || 'N/A';
+                    const grade = lines.find(l => l.startsWith('Letter Grade:'))?.replace('Letter Grade:', '').trim() || 'N/A';
+                    const timestamp = lines.find(l => l.startsWith('Timestamp:'))?.replace('Timestamp:', '').trim() || '';
+
+                    html += `
+                        <div class="history-item">
+                            <div class="history-item-header">
+                                <div class="history-item-name">${student}</div>
+                                <div class="history-item-grade">${grade}</div>
+                            </div>
+                            <div class="history-item-details">
+                                <div class="history-item-detail"><strong>Subject:</strong> ${subject}</div>
+                                <div class="history-item-detail"><strong>Score:</strong> ${score}</div>
+                            </div>
+                            ${timestamp ? `<div style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">📅 ${timestamp}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                historyContainer.innerHTML = html;
+            } catch (error) {
+                historyContainer.innerHTML = `<div class="no-history">❌ Error loading history: ${error.message}</div>`;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadHistory();
+        });
+    </script>
+</body>
+
+</html>
