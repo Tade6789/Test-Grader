@@ -303,6 +303,8 @@
             <div id="users-container" class="loading">Loading user accounts...</div>
         </div>
 
+        <div id="demo-credentials"></div>
+
         <footer>
             <p>&copy; 2025 Test Grader - Professional Grade Management System</p>
         </footer>
@@ -421,12 +423,43 @@
             }
         }
 
+        function showDemoCredentials() {
+            const html = `
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2rem; border-radius: 10px; margin-top: 2rem;">
+                    <h3 style="margin-top: 0; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 1rem;">🔑 Demo Credentials (For Testing Only)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">FREE Account</div>
+                            <div style="font-family: monospace; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">
+                                📧 demo@testgrader.com<br>
+                                🔐 demo123456
+                            </div>
+                            <div style="font-size: 0.85rem; opacity: 0.9;">Plan: Free (Basic Features)</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">⭐ PRO Account</div>
+                            <div style="font-family: monospace; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">
+                                📧 tade@gru.com<br>
+                                🔐 propass123
+                            </div>
+                            <div style="font-size: 0.85rem; opacity: 0.9;">Plan: Pro (All Features)</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,0,0.2); border-left: 4px solid #ffff00; border-radius: 4px; font-size: 0.9rem;">
+                        ⚠️ These are demo accounts for testing. Change passwords in production!
+                    </div>
+                </div>
+            `;
+            document.getElementById('demo-credentials').innerHTML = html;
+        }
+
         // Load data on page load
         window.addEventListener('load', () => {
             loadServers();
             loadGrades();
             loadStats();
             loadUsers();
+            showDemoCredentials();
         });
 
         // Refresh data every 30 seconds
