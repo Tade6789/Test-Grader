@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
 import os
+import stripe
 from models import db, GradeReport, GradeServer, User as DbUser
 
 app = Flask(__name__, template_folder='.', static_folder='.')
@@ -18,6 +19,33 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 app.config['JSON_SORT_KEYS'] = False
 
 db.init_app(app)
+
+# Initialize Stripe - fetch key from Replit connection
+def get_stripe_key():
+    """Get Stripe secret key from Replit connection"""
+    try:
+        hostname = os.environ.get('REPLIT_CONNECTORS_HOSTNAME')
+        x_replit_token = os.environ.get('REPL_IDENTITY')
+        
+        if not hostname or not x_replit_token:
+            return None
+            
+        url = f"https://{hostname}/api/v2/connection?include_secrets=true&connector_names=stripe&environment=development"
+        headers = {'X_REPLIT_TOKEN': f'repl {x_replit_token}', 'Accept': 'application/json'}
+        
+        import requests
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('items') and len(data['items']) > 0:
+                return data['items'][0].get('settings', {}).get('secret')
+    except:
+        pass
+    return None
+
+stripe_key = get_stripe_key()
+if stripe_key:
+    stripe.api_key = stripe_key
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -376,6 +404,53 @@ def bucket_page():
             return f.read()
     except:
         return render_template('bucket.html')
+
+@app.route('/api/checkout-pro', methods=['POST'])
+@login_required
+def checkout_pro():
+    """Create checkout session for Pro plan ($9/month)"""
+    try:
+        if not stripe_key:
+            return jsonify({'error': 'Payment system not configured'}), 500
+        
+        current_url = request.host_url.rstrip('/')
+        session_obj = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Pro Plan',
+                        'description': 'Professional grading system - $9/month',
+                    },
+                    'unit_amount': 900,  # $9.00
+                    'recurring': {
+                        'interval': 'month',
+                    }
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=f'{current_url}/bucket?success=true',
+            cancel_url=f'{current_url}/bucket?cancel=true',
+            customer_email=current_user.email if current_user.is_authenticated else None,
+        )
+        return jsonify({'url': session_obj.url})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/checkout-enterprise', methods=['POST'])
+@login_required
+def checkout_enterprise():
+    """Create checkout session for Enterprise plan (contact sales)"""
+    try:
+        # For enterprise, we don't create a session - just return a mailto link
+        return jsonify({
+            'email': 'support@testgrader.com',
+            'message': 'Please contact our sales team for enterprise pricing'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/download/<filename>')
 def download_file(filename):

@@ -396,7 +396,7 @@
                     </ul>
                 </div>
                 <div class="plan-footer">
-                    <button class="btn btn-secondary" onclick="alert('Pro plan enrollment coming soon!')">Upgrade to Pro</button>
+                    <button class="btn btn-secondary" onclick="upgradeToPro()">Upgrade to Pro</button>
                 </div>
             </div>
 
@@ -443,7 +443,7 @@
                     </ul>
                 </div>
                 <div class="plan-footer">
-                    <button class="btn btn-secondary" onclick="alert('Please contact sales at support@testgrader.com')">Contact Sales</button>
+                    <button class="btn btn-secondary" onclick="contactSales()">Contact Sales</button>
                 </div>
             </div>
         </div>
@@ -532,6 +532,46 @@
             <a href="/teacher">🎓 Console</a>
         </div>
     </div>
+
+    <script>
+        async function upgradeToPro() {
+            try {
+                const response = await fetch('/api/checkout-pro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Unable to process payment'));
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+            } catch (error) {
+                alert('Payment error: ' + error.message);
+            }
+        }
+
+        function contactSales() {
+            window.location.href = 'mailto:support@testgrader.com?subject=Enterprise%20Plan%20Inquiry&body=Hello,%20I%20am%20interested%20in%20the%20Enterprise%20Plan%20for%20Test%20Grader.';
+        }
+
+        // Show success/cancel messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('success')) {
+                alert('✓ Thank you for upgrading! Your subscription is now active.');
+            } else if (params.get('cancel')) {
+                alert('Payment cancelled. You can try again anytime.');
+            }
+            // Clean up URL
+            window.history.replaceState({}, document.title, '/bucket');
+        });
+    </script>
 </body>
 
 </html>

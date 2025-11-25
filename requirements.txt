@@ -6,4 +6,8 @@ flask-wtf
 flask-cors
 werkzeug
 flask-sqlalchemy
-psycopg2
+psycopg2-binary
+sqlalchemy
+stripe
+requests
+stripe
