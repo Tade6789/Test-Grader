@@ -277,6 +277,22 @@ def get_history():
     except FileNotFoundError:
         return jsonify({'history': 'No grade history found yet.'})
 
+@app.route('/download/<filename>')
+def download_file(filename):
+    """Download a file"""
+    try:
+        import os
+        from flask import send_file
+        # Validate filename to prevent directory traversal
+        if '..' in filename or '/' in filename:
+            return "Invalid filename", 400
+        filepath = filename
+        if os.path.exists(filepath):
+            return send_file(filepath, as_attachment=True, download_name=filename)
+        return "File not found", 404
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
 if __name__ == '__main__':
     print("🎓 Test Grader Teacher Console Server")
     print("Starting server on http://0.0.0.0:5000")
