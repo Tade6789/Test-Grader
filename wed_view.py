@@ -359,6 +359,15 @@ def database_page():
     except:
         return render_template('database.html')
 
+@app.route('/stats')
+def stats_page():
+    """Serve the statistics page"""
+    try:
+        with open('stats.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('stats.html')
+
 @app.route('/download/<filename>')
 def download_file(filename):
     """Download a file"""

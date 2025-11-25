@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Test Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #4c3f91;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4c3f91;
+            border: 2px solid #4c3f91;
+        }
+
+        .btn-secondary:hover {
+            background: #4c3f91;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            color: #4c3f91;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-subtitle {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #4c3f91;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #4c3f91;
+            padding-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: #4c3f91;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .grade-a {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .grade-b {
+            background: #e3f2fd;
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        .grade-c {
+            background: #fff3e0;
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .grade-d {
+            background: #ffe0b2;
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .grade-f {
+            background: #ffebee;
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dist-item {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .dist-item strong {
+            display: block;
+            color: #4c3f91;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dist-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Statistics & Analytics</h1>
+            <p>Comprehensive grading system analytics and insights</p>
+            <div class="nav-buttons">
+                <a href="/" class="btn btn-secondary">← Back Home</a>
+                <a href="/database" class="btn btn-secondary">Database Manager</a>
+                <a href="/teacher" class="btn btn-secondary">Teacher Console</a>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Grades</h3>
+                <div class="stat-value" id="total-grades">0</div>
+                <div class="stat-subtitle">grades recorded</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average Score</h3>
+                <div class="stat-value" id="avg-score">0%</div>
+                <div class="stat-subtitle">out of 100</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average GPA</h3>
+                <div class="stat-value" id="avg-gpa">0.0</div>
+                <div class="stat-subtitle">on 4.0 scale</div>
+            </div>
+            <div class="stat-card">
+                <h3>Versions Used</h3>
+                <div class="stat-value" id="versions-count">0</div>
+                <div class="stat-subtitle">grader versions</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 Grade Distribution</h2>
+            <div class="chart-container" id="distribution-container">
+                <div class="loading">Loading distribution...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎓 Performance Summary</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Grade</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Average Score</th>
+                    </tr>
+                </thead>
+                <tbody id="summary-body">
+                    <tr>
+                        <td colspan="4" class="no-data">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>📊 Version Statistics</h2>
+            <table id="version-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Total Grades</th>
+                        <th>Average Score</th>
+                        <th>Average GPA</th>
+                    </tr>
+                </thead>
+                <tbody id="version-body">
+                    <tr>
+                        <td colspan="4" class="no-data">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Test Grader - Professional Grade Management System</p>
+        </footer>
+    </div>
+
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                if (!response.ok) throw new Error('Failed to load stats');
+                
+                const data = await response.json();
+                document.getElementById('total-grades').textContent = data.grade_count;
+                document.getElementById('avg-score').textContent = data.avg_score.toFixed(1) + '%';
+                document.getElementById('avg-gpa').textContent = data.avg_gpa.toFixed(2);
+                document.getElementById('versions-count').textContent = data.server_count;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadDistribution() {
+            try {
+                const response = await fetch('/api/grades');
+                if (!response.ok) throw new Error('Failed to load grades');
+                
+                const data = await response.json();
+                if (!data.grades || data.grades.length === 0) {
+                    document.getElementById('distribution-container').innerHTML = 
+                        '<div class="no-data">No grades recorded yet</div>';
+                    return;
+                }
+
+                const distribution = {
+                    'A+': 0, 'A': 0, 'A-': 0,
+                    'B+': 0, 'B': 0, 'B-': 0,
+                    'C+': 0, 'C': 0, 'C-': 0,
+                    'D+': 0, 'D': 0, 'D-': 0,
+                    'F': 0
+                };
+
+                data.grades.forEach(grade => {
+                    if (distribution.hasOwnProperty(grade.letter_grade)) {
+                        distribution[grade.letter_grade]++;
+                    }
+                });
+
+                let html = '<div class="distribution">';
+                for (const [grade, count] of Object.entries(distribution)) {
+                    if (count > 0) {
+                        html += `
+                            <div class="dist-item">
+                                <strong>${grade}</strong>
+                                <div class="dist-label">${count} grades</div>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+
+                document.getElementById('distribution-container').innerHTML = html || 
+                    '<div class="no-data">No grade distribution data</div>';
+            } catch (error) {
+                document.getElementById('distribution-container').innerHTML = 
+                    `<div class="no-data">Error loading distribution</div>`;
+            }
+        }
+
+        async function loadSummary() {
+            try {
+                const response = await fetch('/api/grades');
+                if (!response.ok) throw new Error('Failed to load grades');
+                
+                const data = await response.json();
+                if (!data.grades || data.grades.length === 0) {
+                    document.getElementById('summary-body').innerHTML = 
+                        '<tr><td colspan="4" class="no-data">No grades recorded yet</td></tr>';
+                    return;
+                }
+
+                const summary = {};
+                data.grades.forEach(grade => {
+                    if (!summary[grade.letter_grade]) {
+                        summary[grade.letter_grade] = { count: 0, totalScore: 0, scores: [] };
+                    }
+                    summary[grade.letter_grade].count++;
+                    summary[grade.letter_grade].totalScore += grade.score;
+                    summary[grade.letter_grade].scores.push(grade.score);
+                });
+
+                let html = '';
+                for (const [grade, stats] of Object.entries(summary)) {
+                    const percentage = ((stats.count / data.grades.length) * 100).toFixed(1);
+                    const avgScore = (stats.totalScore / stats.count).toFixed(1);
+                    const gradeClass = grade.includes('A') ? 'grade-a' : 
+                                     grade.includes('B') ? 'grade-b' :
+                                     grade.includes('C') ? 'grade-c' :
+                                     grade.includes('D') ? 'grade-d' : 'grade-f';
+                    
+                    html += `
+                        <tr>
+                            <td><span class="${gradeClass}">${grade}</span></td>
+                            <td>${stats.count}</td>
+                            <td>${percentage}%</td>
+                            <td>${avgScore}%</td>
+                        </tr>
+                    `;
+                }
+                document.getElementById('summary-body').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+
+        async function loadVersionStats() {
+            try {
+                const [serversResponse, gradesResponse] = await Promise.all([
+                    fetch('/api/servers'),
+                    fetch('/api/grades')
+                ]);
+
+                if (!serversResponse.ok || !gradesResponse.ok) throw new Error('Failed to load data');
+                
+                const servers = await serversResponse.json();
+                const grades = await gradesResponse.json();
+
+                if (!servers.servers || servers.servers.length === 0) {
+                    document.getElementById('version-body').innerHTML = 
+                        '<tr><td colspan="4" class="no-data">No servers found</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                for (const server of servers.servers) {
+                    const versionGrades = grades.grades.filter(g => g.server_id === server.id);
+                    const avgScore = versionGrades.length > 0 
+                        ? (versionGrades.reduce((sum, g) => sum + g.score, 0) / versionGrades.length).toFixed(1)
+                        : 'N/A';
+                    const avgGpa = versionGrades.length > 0 
+                        ? (versionGrades.reduce((sum, g) => sum + g.gpa, 0) / versionGrades.length).toFixed(2)
+                        : 'N/A';
+
+                    html += `
+                        <tr>
+                            <td><span class="version-badge">${server.version}</span></td>
+                            <td>${versionGrades.length}</td>
+                            <td>${avgScore}${avgScore !== 'N/A' ? '%' : ''}</td>
+                            <td>${avgGpa}</td>
+                        </tr>
+                    `;
+                }
+                document.getElementById('version-body').innerHTML = html || 
+                    '<tr><td colspan="4" class="no-data">No data available</td></tr>';
+            } catch (error) {
+                console.error('Error loading version stats:', error);
+            }
+        }
+
+        // Load all stats on page load
+        window.addEventListener('load', () => {
+            loadStats();
+            loadDistribution();
+            loadSummary();
+            loadVersionStats();
+        });
+
+        // Refresh stats every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadDistribution();
+            loadSummary();
+            loadVersionStats();
+        }, 30000);
+    </script>
+</body>
+
+</html>
