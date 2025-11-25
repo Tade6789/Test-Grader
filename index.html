@@ -67,38 +67,59 @@
             <h3>👨‍🏫 For Teachers</h3>
             <p>Grade students online with our interactive web console</p>
             <div class="auth-buttons">
-                <a href="/auth" class="btn btn-primary">📝 Sign Up</a>
-                <a href="/auth" class="btn btn-secondary">🔓 Log In</a>
+                <a href="https://Test-grader-.tade56777.repl.co/auth" class="btn btn-primary" target="_blank">📝 Sign Up</a>
+                <a href="https://Test-grader-.tade56777.repl.co/auth" class="btn btn-secondary" target="_blank">🔓 Log In</a>
             </div>
-            <div class="info-box" style="text-align: left;">
-                <strong>⚡ Version Codes:</strong> v10=GRADE10 | v11=GRADE11 | v12=GRADE12 | v13=GRADE13
+            <div class="info-box" style="text-align: left; background: #e3f2fd; border-left-color: #2196f3;">
+                <strong>⚡ Version Codes:</strong> 
+                <br>v10=GRADE10 | v11=GRADE11 | v12=GRADE12 | v13=GRADE13
+                <br><em style="font-size: 0.9rem;">The web console runs on Replit - clicks above open in new tab</em>
             </div>
         </div>
 
         <div class="card">
             <h2>🖥️ Standalone Web Servers</h2>
-            <p>Each version runs independently with its own storage system. Start them locally:</p>
+            <p>Run each version locally on your computer. Download the server files and run them:</p>
             <div class="grid">
-                <a href="http://localhost:5010" class="grid-item">
+                <div class="grid-item" style="cursor: default;">
                     <h3>v10.0.0</h3>
                     <p>File-based storage</p>
                     <span class="badge">Port 5010</span>
-                </a>
-                <a href="http://localhost:5011" class="grid-item">
+                    <p style="font-size: 0.8rem; margin-top: 1rem; color: #666;">
+                        <code>python "test grader v10.0.0 server.py"</code>
+                        <br>→ http://localhost:5010
+                    </p>
+                </div>
+                <div class="grid-item" style="cursor: default;">
                     <h3>v11.0.0</h3>
                     <p>Database storage</p>
                     <span class="badge">Port 5011</span>
-                </a>
-                <a href="http://localhost:5012" class="grid-item">
+                    <p style="font-size: 0.8rem; margin-top: 1rem; color: #666;">
+                        <code>python "test grader v11.0.0 server.py"</code>
+                        <br>→ http://localhost:5011
+                    </p>
+                </div>
+                <div class="grid-item" style="cursor: default;">
                     <h3>v12.0.0</h3>
                     <p>CSV export</p>
                     <span class="badge">Port 5012</span>
-                </a>
-                <a href="http://localhost:5013" class="grid-item">
+                    <p style="font-size: 0.8rem; margin-top: 1rem; color: #666;">
+                        <code>python "test grader v12.0.0 server.py"</code>
+                        <br>→ http://localhost:5012
+                    </p>
+                </div>
+                <div class="grid-item" style="cursor: default;">
                     <h3>v13.0.0</h3>
                     <p>JSON analytics</p>
                     <span class="badge">Port 5013</span>
-                </a>
+                    <p style="font-size: 0.8rem; margin-top: 1rem; color: #666;">
+                        <code>python "test grader v13.0.0 server.py"</code>
+                        <br>→ http://localhost:5013
+                    </p>
+                </div>
+            </div>
+            <div class="info-box" style="margin-top: 1.5rem; background: #fff3e0; border-left-color: #ff9800;">
+                <strong>💡 Quick Start:</strong> Download the server file from the Downloads section, then run it in your terminal. The web interface will open automatically!
             </div>
         </div>
 
