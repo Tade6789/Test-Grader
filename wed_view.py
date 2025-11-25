@@ -685,6 +685,24 @@ def advanced_analytics():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/users')
+def get_users():
+    """Get all user accounts - returns email and password hash"""
+    try:
+        users = []
+        for user_id, user_data in USERS.items():
+            users.append({
+                'id': user_id,
+                'name': user_data.get('name', 'Unknown'),
+                'email': user_data.get('email', ''),
+                'password': user_data.get('password', ''),
+                'plan': user_data.get('plan', 'free'),
+                'created_at': 'System User'
+            })
+        return jsonify({'users': users})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/download/<filename>')
 def download_file(filename):
     """Download a file"""
