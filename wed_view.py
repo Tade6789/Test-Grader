@@ -65,7 +65,7 @@ USERS = {
     '1': {
         'email': 'demo@testgrader.com',
         'name': 'Demo Teacher',
-        'password_hash': generate_password_hash('demo123456'),
+        'password': generate_password_hash('demo123456'),
         'plan': 'free',
         'stripe_customer_id': None
     }
