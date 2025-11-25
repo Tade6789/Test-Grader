@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
 import os
 
 app = Flask(__name__, template_folder='.', static_folder='.')
+CORS(app)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['JSON_SORT_KEYS'] = False
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -134,11 +137,13 @@ def teacher_console():
     except:
         return render_template('teacher.html')
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/login', methods=['POST', 'OPTIONS'])
 def api_login():
     """Login API endpoint"""
+    if request.method == 'OPTIONS':
+        return '', 204
     try:
-        data = request.json
+        data = request.get_json(force=True)
         email = data.get('email', '').strip()
         password = data.get('password', '')
 
@@ -157,15 +162,19 @@ def api_login():
 
         user = User(user_id, USERS[user_id]['email'], USERS[user_id]['name'])
         login_user(user)
-        return jsonify({'success': True, 'message': 'Logged in successfully'})
+        resp = jsonify({'success': True, 'message': 'Logged in successfully'})
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/signup', methods=['POST'])
+@app.route('/api/signup', methods=['POST', 'OPTIONS'])
 def api_signup():
     """Signup API endpoint"""
+    if request.method == 'OPTIONS':
+        return '', 204
     try:
-        data = request.json
+        data = request.get_json(force=True)
         name = data.get('name', '').strip()
         email = data.get('email', '').strip()
         password = data.get('password', '')
@@ -189,7 +198,9 @@ def api_signup():
             'password': generate_password_hash(password)
         }
 
-        return jsonify({'success': True, 'message': 'Account created successfully'})
+        resp = jsonify({'success': True, 'message': 'Account created successfully'})
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -4,3 +4,5 @@ matplotlib
 flask
 flask-login
 flask-wtf
+flask-cors
+werkzeug
