@@ -258,10 +258,12 @@ def api_signup():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/verify-code', methods=['POST'])
-@login_required
 def verify_code():
     """Verify version code"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         data = request.json
         code = data.get('code', '').upper().strip()
 
@@ -278,19 +280,21 @@ def verify_code():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/logout', methods=['POST'])
-@login_required
 def api_logout():
     """Logout API endpoint"""
-    logout_user()
+    if current_user.is_authenticated:
+        logout_user()
     response = jsonify({'success': True, 'message': 'Logged out successfully'})
     response.delete_cookie('code_verified')
     return response
 
 @app.route('/api/grade', methods=['POST'])
-@login_required
 def grade_test():
     """API endpoint to grade a test"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         data = request.json
         score = float(data.get('score', 0))
         name = data.get('name', '')
@@ -327,10 +331,12 @@ def grade_test():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/history', methods=['GET'])
-@login_required
 def get_history():
     """Get grade history from database"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         grades = GradeReport.query.order_by(GradeReport.created_at.desc()).all()
         if not grades:
             return jsonify({'history': 'No grade history found yet.', 'records': []})
@@ -433,10 +439,12 @@ def account_page():
         return render_template('account.html')
 
 @app.route('/api/account')
-@login_required
 def get_account():
     """Get user account information"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         if current_user.id in USERS:
             user_data = USERS[current_user.id]
             return jsonify({
@@ -451,10 +459,12 @@ def get_account():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/upgrade-to-pro', methods=['POST'])
-@login_required
 def upgrade_to_pro():
     """Upgrade user to pro plan (after payment confirmation)"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         if current_user.id in USERS:
             USERS[current_user.id]['plan'] = 'pro'
             return jsonify({'success': True, 'plan': 'pro'})
@@ -463,7 +473,6 @@ def upgrade_to_pro():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/checkout-pro', methods=['POST'])
-@login_required
 def checkout_pro():
     """Create checkout session for Pro plan ($9/month)"""
     try:
@@ -518,10 +527,12 @@ def checkout_pro():
         return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
 @app.route('/api/checkout-enterprise', methods=['POST'])
-@login_required
 def checkout_enterprise():
     """Create checkout session for Enterprise plan (contact sales)"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
         # For enterprise, we don't create a session - just return a mailto link
         return jsonify({
             'email': 'support@testgrader.com',
