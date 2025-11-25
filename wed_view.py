@@ -61,7 +61,15 @@ VERSION_CODES = {
 }
 
 # Simple in-memory user storage (replace with database in production)
-USERS = {}
+USERS = {
+    '1': {
+        'email': 'demo@testgrader.com',
+        'name': 'Demo Teacher',
+        'password_hash': generate_password_hash('demo123456'),
+        'plan': 'free',
+        'stripe_customer_id': None
+    }
+}
 
 class User(UserMixin):
     def __init__(self, id, email, name, plan='free', stripe_customer_id=None):
