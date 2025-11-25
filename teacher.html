@@ -350,6 +350,7 @@
             <button class="nav-btn active" onclick="showSection('grading')">Grade Students</button>
             <button class="nav-btn" onclick="showSection('history')">View History</button>
             <button class="nav-btn" onclick="location.href='/'">Download Page</button>
+            <button class="nav-btn" onclick="logout()">Logout</button>
         </div>
 
         <div class="content" id="grading-section">
@@ -490,6 +491,13 @@
     </footer>
 
     <script>
+        async function logout() {
+            const response = await fetch('/api/logout', { method: 'POST' });
+            if (response.ok) {
+                window.location.href = '/auth';
+            }
+        }
+
         function showSection(section) {
             document.getElementById('grading-section').style.display = section === 'grading' ? 'grid' : 'none';
             document.getElementById('history-section').style.display = section === 'history' ? 'grid' : 'none';
