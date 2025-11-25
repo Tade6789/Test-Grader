@@ -5,13 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Login - Test Grader</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%234c3f91' width='100' height='100'/><text x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>G</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -22,43 +19,63 @@
             padding: 20px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 400px;
-        }
+        .container { width: 100%; max-width: 450px; }
 
         .auth-box {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            padding: 2.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
             animation: slideIn 0.5s ease;
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 {
-            color: #4c3f91;
-            font-size: 2rem;
+        .auth-header {
+            background: linear-gradient(135deg, #4c3f91 0%, #667eea 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            text-align: center;
         }
 
-        .subtitle {
-            color: #666;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
+        .auth-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
         }
+
+        .auth-body { padding: 2rem; }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #f5c6cb;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #c3e6cb;
+        }
+
+        .message.show { display: block; }
 
         .form-group {
             margin-bottom: 1.5rem;
@@ -68,31 +85,48 @@
             display: block;
             color: #333;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
         }
 
         input {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 0.95rem 1rem 0.95rem 2.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background-color: #fafafa;
         }
 
         input:focus {
             outline: none;
-            border-color: #4c3f91;
-            box-shadow: 0 0 5px rgba(76, 63, 145, 0.2);
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.1rem;
+            pointer-events: none;
         }
 
         button {
             width: 100%;
-            padding: 1rem;
-            background-color: #4c3f91;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -101,10 +135,11 @@
         }
 
         button:hover {
-            background-color: #3b2f70;
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(76, 63, 145, 0.3);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
+
+        button:active { transform: translateY(0); }
 
         .toggle-form {
             text-align: center;
@@ -113,46 +148,32 @@
         }
 
         .toggle-form a {
-            color: #4c3f91;
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
         }
 
-        .toggle-form a:hover {
-            text-decoration: underline;
+        .toggle-form a:hover { text-decoration: underline; }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #999;
         }
 
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
+        .form-divider line { flex: 1; height: 1px; background: #e0e0e0; }
+        .form-divider span { margin: 0 0.8rem; font-size: 0.9rem; }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
             padding: 1rem;
             border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
-            border-left: 4px solid #f5c6cb;
-        }
-
-        .error.show {
-            display: block;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
-            border-left: 4px solid #c3e6cb;
-        }
-
-        .success.show {
-            display: block;
-        }
-
-        #signupForm {
-            display: none;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #1565c0;
         }
 
         .back-link {
@@ -161,13 +182,21 @@
         }
 
         .back-link a {
-            color: #4c3f91;
+            color: #667eea;
             text-decoration: none;
             font-size: 0.9rem;
         }
 
-        .back-link a:hover {
-            text-decoration: underline;
+        .back-link a:hover { text-decoration: underline; }
+
+        #signupForm { display: none; }
+
+        .form-title {
+            color: #4c3f91;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -175,56 +204,96 @@
 <body>
     <div class="container">
         <div class="auth-box">
-            <h1>🎓 Test Grader</h1>
-            <p class="subtitle">Teacher Console</p>
+            <div class="auth-header">
+                <h1>📊 Test Grader</h1>
+                <p>Teacher Console Access</p>
+            </div>
 
-            <div class="error" id="errorMessage"></div>
-            <div class="success" id="successMessage"></div>
+            <div class="auth-body">
+                <div class="message error" id="errorMessage"></div>
+                <div class="message success" id="successMessage"></div>
 
-            <!-- Login Form -->
-            <form id="loginForm">
-                <h2 style="color: #4c3f91; text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">Login</h2>
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
-                </div>
-                <button type="submit">Sign In</button>
-                <div class="toggle-form">
-                    Don't have an account? <a onclick="toggleForm()">Sign Up</a>
-                </div>
-            </form>
+                <!-- Login Form -->
+                <form id="loginForm">
+                    <h2 class="form-title">🔐 Sign In</h2>
+                    
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">✉️</span>
+                            <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                        </div>
+                    </div>
 
-            <!-- Signup Form -->
-            <form id="signupForm">
-                <h2 style="color: #4c3f91; text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">Sign Up</h2>
-                <div class="form-group">
-                    <label for="signupName">Full Name</label>
-                    <input type="text" id="signupName" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="signupEmail">Email</label>
-                    <input type="email" id="signupEmail" placeholder="your@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="signupPassword">Password</label>
-                    <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label for="signupConfirm">Confirm Password</label>
-                    <input type="password" id="signupConfirm" placeholder="••••••••" required>
-                </div>
-                <button type="submit">Create Account</button>
-                <div class="toggle-form">
-                    Already have an account? <a onclick="toggleForm()">Sign In</a>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        </div>
+                    </div>
 
-            <div class="back-link">
-                <a href="/">← Back to Home</a>
+                    <button type="submit">Sign In to Console</button>
+
+                    <div class="toggle-form">
+                        No account yet? <a onclick="toggleForm()">Create one</a>
+                    </div>
+
+                    <div class="info-box">
+                        💡 After signing in, you'll enter your version code (GRADE10, GRADE11, GRADE12, or GRADE13)
+                    </div>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signupForm">
+                    <h2 class="form-title">📝 Sign Up</h2>
+                    
+                    <div class="form-group">
+                        <label for="signupName">Full Name</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="signupName" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signupEmail">Email Address</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">✉️</span>
+                            <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signupConfirm">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">✓</span>
+                            <input type="password" id="signupConfirm" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit">Create Account</button>
+
+                    <div class="toggle-form">
+                        Already have an account? <a onclick="toggleForm()">Sign in</a>
+                    </div>
+
+                    <div class="info-box">
+                        🎓 Create your free teacher account to start grading students online!
+                    </div>
+                </form>
+
+                <div class="back-link">
+                    <a href="/">← Back to Home</a>
+                </div>
             </div>
         </div>
     </div>
@@ -242,6 +311,7 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorBox = document.getElementById('errorMessage');
+            const successBox = document.getElementById('successMessage');
 
             try {
                 const response = await fetch('/api/login', {
@@ -258,7 +328,9 @@
                     return;
                 }
 
-                window.location.href = '/teacher';
+                successBox.textContent = 'Login successful! Redirecting...';
+                successBox.classList.add('show');
+                setTimeout(() => window.location.href = '/code', 1500);
             } catch (error) {
                 errorBox.textContent = 'Error: ' + error.message;
                 errorBox.classList.add('show');
@@ -295,9 +367,9 @@
                     return;
                 }
 
-                successBox.textContent = 'Account created! Redirecting to login...';
+                successBox.textContent = 'Account created! Signing you in...';
                 successBox.classList.add('show');
-                setTimeout(() => toggleForm(), 1500);
+                setTimeout(() => window.location.href = '/code', 1500);
             } catch (error) {
                 errorBox.textContent = 'Error: ' + error.message;
                 errorBox.classList.add('show');
