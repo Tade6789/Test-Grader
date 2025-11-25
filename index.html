@@ -42,15 +42,14 @@
         .info-box ul { margin-left: 1.5rem; color: #666; }
         .info-box li { margin: 0.3rem 0; }
 
-        .partners { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; }
-        .partners h2 { color: #4c3f91; margin-bottom: 1.5rem; font-size: 1.8rem; }
-        .partners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; }
-        .partner-item { text-align: center; }
-        .partner-link { display: inline-block; text-decoration: none; transition: all 0.3s; }
-        .partner-logo { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-        .partner-logo img { max-width: 100%; max-height: 100%; }
-        .partner-name { color: #4c3f91; font-weight: 600; font-size: 1.1rem; }
-        .partner-link:hover { transform: scale(1.05); }
+        .partners { background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%); border-radius: 8px; border: 2px solid #667eea; padding: 2rem; margin-bottom: 2rem; }
+        .partners h2 { color: #4c3f91; margin-bottom: 2rem; font-size: 1.8rem; text-align: center; }
+        .partners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2rem; justify-items: center; }
+        .partner-link { display: block; text-decoration: none; transition: all 0.3s; text-align: center; }
+        .partner-logo { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; background: white; border-radius: 12px; border: 2px solid #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); }
+        .partner-logo svg { width: 80px; height: 80px; }
+        .partner-name { color: #4c3f91; font-weight: 700; font-size: 1.2rem; }
+        .partner-link:hover .partner-logo { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3); }
         
         footer { text-align: center; padding: 1.5rem; background: #333; color: #999; font-size: 0.9rem; }
     </style>
