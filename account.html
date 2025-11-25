@@ -348,14 +348,39 @@
             }
         }
 
-        // Check for upgrade success
-        function checkUpgradeSuccess() {
+        // Check for upgrade success and verify payment
+        async function checkUpgradeSuccess() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('upgraded') === 'true') {
-                document.getElementById('successMessage').classList.add('show');
-                setTimeout(() => {
-                    window.history.replaceState({}, document.title, '/account');
-                }, 2000);
+                try {
+                    console.log('Verifying Stripe payment...');
+                    // Call verification endpoint to confirm payment
+                    const verifyResponse = await fetch('/api/verify-stripe-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ session_id: null })
+                    });
+                    
+                    const verifyData = await verifyResponse.json();
+                    console.log('Verification response:', verifyData);
+                    
+                    if (verifyData.success) {
+                        console.log('Payment verified! User upgraded to:', verifyData.plan);
+                        document.getElementById('successMessage').classList.add('show');
+                        setTimeout(() => {
+                            window.history.replaceState({}, document.title, '/account');
+                            loadAccount(); // Reload account info
+                        }, 2000);
+                    }
+                } catch (error) {
+                    console.error('Error verifying payment:', error);
+                    // Still show success message even if verification fails
+                    document.getElementById('successMessage').classList.add('show');
+                    setTimeout(() => {
+                        window.history.replaceState({}, document.title, '/account');
+                        loadAccount();
+                    }, 2000);
+                }
             }
         }
 

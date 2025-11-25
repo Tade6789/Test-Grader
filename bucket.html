@@ -574,6 +574,10 @@
 
                 if (data.url) {
                     console.log('Redirecting to Stripe:', data.url);
+                    // Store session ID in localStorage for verification after redirect
+                    if (data.session_id) {
+                        localStorage.setItem('stripe_session_id', data.session_id);
+                    }
                     window.location.href = data.url;
                 } else if (data.success) {
                     console.log('Demo mode: upgraded to Pro');

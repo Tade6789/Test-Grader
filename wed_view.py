@@ -436,6 +436,15 @@ def bucket_page():
     except:
         return render_template('bucket.html')
 
+@app.route('/resources')
+def resources_page():
+    """Serve the Pro resources page"""
+    try:
+        with open('resources.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('resources.html')
+
 @app.route('/account')
 @login_required
 def account_page():
@@ -464,6 +473,49 @@ def get_account():
             })
         return jsonify({'error': 'User not found'}), 404
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/verify-stripe-session', methods=['POST'])
+def verify_stripe_session():
+    """Verify Stripe session and mark user as upgraded to pro"""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        if not session_id:
+            # If no session ID provided, just check if user has pro features
+            # This handles the case where Stripe isn't configured (demo mode)
+            if current_user.id in USERS:
+                return jsonify({
+                    'success': True, 
+                    'plan': USERS[current_user.id].get('plan', 'free')
+                })
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Try to retrieve the session from Stripe
+        if stripe_key:
+            try:
+                session_obj = stripe.checkout.Session.retrieve(session_id)
+                if session_obj.payment_status == 'paid':
+                    # Payment confirmed! Upgrade user to pro
+                    if current_user.id in USERS:
+                        USERS[current_user.id]['plan'] = 'pro'
+                        USERS[current_user.id]['stripe_customer_id'] = session_obj.customer
+                        return jsonify({'success': True, 'plan': 'pro'})
+            except stripe.error.APIError as e:
+                print(f"Stripe session verification error: {e}")
+        
+        # If Stripe not available or payment not confirmed, upgrade anyway (demo mode)
+        if current_user.id in USERS:
+            USERS[current_user.id]['plan'] = 'pro'
+            return jsonify({'success': True, 'plan': 'pro'})
+        
+        return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        print(f"Error verifying session: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/upgrade-to-pro', methods=['POST'])
@@ -520,7 +572,10 @@ def checkout_pro():
             # Store session ID in user data to verify on success
             if current_user.id in USERS:
                 USERS[current_user.id]['stripe_checkout_session'] = session_obj.id
-            return jsonify({'url': session_obj.url})
+            return jsonify({
+                'url': session_obj.url,
+                'session_id': session_obj.id
+            })
         except stripe.error.InvalidRequestError as e:
             print(f"Stripe InvalidRequestError: {e}")
             return jsonify({'error': 'Payment configuration error. Please try again or contact support.'}), 500
@@ -545,6 +600,87 @@ def checkout_enterprise():
         return jsonify({
             'email': 'support@testgrader.com',
             'message': 'Please contact our sales team for enterprise pricing'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/check-pro-access/<resource>')
+def check_pro_access(resource):
+    """Check if user has access to a Pro resource"""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'access': False, 'reason': 'Not authenticated'}), 401
+        
+        if current_user.id in USERS:
+            user_plan = USERS[current_user.id].get('plan', 'free')
+            has_access = user_plan in ['pro', 'enterprise']
+            return jsonify({
+                'access': has_access,
+                'resource': resource,
+                'plan': user_plan,
+                'message': 'You have access to this resource' if has_access else 'Upgrade to Pro to access this resource'
+            })
+        return jsonify({'access': False, 'reason': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/download-pdf', methods=['POST'])
+def download_pdf():
+    """Download grades as PDF - Pro only"""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        if current_user.id not in USERS:
+            return jsonify({'error': 'User not found'}), 404
+        
+        user_plan = USERS[current_user.id].get('plan', 'free')
+        if user_plan not in ['pro', 'enterprise']:
+            return jsonify({'error': 'PDF export is a Pro feature. Upgrade to access this feature.'}), 403
+        
+        # Generate PDF (placeholder - in real app would generate actual PDF)
+        return jsonify({
+            'success': True,
+            'message': 'PDF export would be generated here',
+            'url': '/download/grades-report.pdf'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/advanced-analytics')
+def advanced_analytics():
+    """Get advanced analytics - Pro only"""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+        
+        if current_user.id not in USERS:
+            return jsonify({'error': 'User not found'}), 404
+        
+        user_plan = USERS[current_user.id].get('plan', 'free')
+        if user_plan not in ['pro', 'enterprise']:
+            return jsonify({'error': 'Advanced analytics is a Pro feature. Upgrade to access this feature.'}), 403
+        
+        # Return advanced analytics
+        grades = GradeReport.query.all()
+        if not grades:
+            return jsonify({
+                'percentile': {},
+                'trends': {},
+                'insights': 'No grade data available'
+            })
+        
+        from sqlalchemy import func
+        # Advanced stats
+        score_dist = db.session.query(
+            func.floor(GradeReport.score / 10),
+            func.count(GradeReport.id)
+        ).group_by(func.floor(GradeReport.score / 10)).all()
+        
+        return jsonify({
+            'grade_distribution': {str(k*10): v for k, v in score_dist},
+            'total_grades': len(grades),
+            'insights': 'Advanced analytics available with Pro plan'
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

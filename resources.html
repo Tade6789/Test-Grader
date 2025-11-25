@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Resources - Test Grader</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; color: white; margin-bottom: 2rem; }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; }
+        .card h2 { color: #4c3f91; margin-bottom: 1.5rem; border-bottom: 2px solid #667eea; padding-bottom: 1rem; }
+        .resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .resource-item { padding: 1.5rem; background: #f9f9f9; border-radius: 8px; border-left: 4px solid #667eea; }
+        .resource-item h3 { color: #4c3f91; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .resource-item p { color: #666; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; }
+        .badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .badge-pro { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .badge-free { background: #e8f5e9; color: #2e7d32; }
+        .locked { opacity: 0.6; }
+        .locked .badge-pro::before { content: '🔒 '; }
+        .btn { padding: 1rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.3); }
+        .btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+        .btn-secondary:hover { background: #667eea; color: white; }
+        .nav-buttons { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; flex-wrap: wrap; }
+        .nav-buttons a { padding: 0.8rem 1.5rem; border: 2px solid white; color: white; border-radius: 5px; text-decoration: none; font-weight: 600; }
+        .nav-buttons a:hover { background: rgba(255,255,255,0.1); }
+        .status-message { padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: none; }
+        .status-message.show { display: block; }
+        .status-free { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+        .status-pro { background: #e3f2fd; color: #1565c0; border-left: 4px solid #667eea; }
+        footer { text-align: center; color: white; margin-top: 2rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎁 Pro Resources</h1>
+            <p>Unlock premium features to enhance your grading experience</p>
+        </header>
+
+        <div class="status-message" id="statusMessage"></div>
+
+        <div class="card">
+            <h2>📊 Available Pro Resources</h2>
+            <div class="resources-grid">
+                <!-- PDF Export -->
+                <div class="resource-item" id="pdfExport">
+                    <h3>📄 PDF Export</h3>
+                    <p>Export grade reports as professional PDF documents with charts and analytics.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Advanced Analytics -->
+                <div class="resource-item" id="advancedAnalytics">
+                    <h3>📈 Advanced Analytics</h3>
+                    <p>Deep dive into grade distributions, trends, and comprehensive performance metrics.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Grade History -->
+                <div class="resource-item" id="gradeHistory">
+                    <h3>📚 Grade History Tracking</h3>
+                    <p>Track all grade changes with timestamps and full revision history.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Bulk Import -->
+                <div class="resource-item" id="bulkImport">
+                    <h3>📥 Bulk Import</h3>
+                    <p>Import grades from CSV files. Save time on data entry for large classes.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Custom Reports -->
+                <div class="resource-item" id="customReports">
+                    <h3>📋 Custom Reports</h3>
+                    <p>Create and schedule custom reports tailored to your needs.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Priority Support -->
+                <div class="resource-item" id="prioritySupport">
+                    <h3>💬 Priority Support</h3>
+                    <p>Get priority email support with 24-hour response time.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- Multi-Class Support -->
+                <div class="resource-item" id="multiClass">
+                    <h3>👥 Multi-Class Management</h3>
+                    <p>Manage grades for unlimited classes and sections.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+
+                <!-- API Access -->
+                <div class="resource-item" id="apiAccess">
+                    <h3>🔌 API Access</h3>
+                    <p>Integrate with your LMS or other educational tools via REST API.</p>
+                    <span class="badge badge-pro">Pro Feature</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⭐ What You Get with Pro</h2>
+            <div style="background: #f9f9f9; padding: 2rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <ul style="list-style: none; color: #666;">
+                    <li style="padding: 0.5rem 0; margin: 0.5rem 0;"><strong>✓</strong> All resources above (8 premium features)</li>
+                    <li style="padding: 0.5rem 0; margin: 0.5rem 0;"><strong>✓</strong> Up to 1,000 grades per month</li>
+                    <li style="padding: 0.5rem 0; margin: 0.5rem 0;"><strong>✓</strong> Access all 5 grader versions</li>
+                    <li style="padding: 0.5rem 0; margin: 0.5rem 0;"><strong>✓</strong> Priority email support</li>
+                    <li style="padding: 0.5rem 0; margin: 0.5rem 0;"><strong>✓</strong> Just $9/month (billed monthly)</li>
+                </ul>
+            </div>
+            <div style="text-align: center;">
+                <a href="/bucket" class="btn btn-primary">Upgrade to Pro - $9/month</a>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/">← Home</a>
+            <a href="/account">👤 Account</a>
+            <a href="/bucket">💰 Pricing</a>
+            <a href="/teacher">🎓 Console</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Test Grader - Professional Grade Management System</p>
+        </footer>
+    </div>
+
+    <script>
+        async function loadResourcesStatus() {
+            try {
+                const response = await fetch('/api/account');
+                if (response.status === 401) {
+                    showStatus('You need to sign in to view resources.', 'free');
+                    lockAllResources();
+                    return;
+                }
+                
+                const data = await response.json();
+                if (data.plan === 'pro' || data.plan === 'enterprise') {
+                    showStatus('✓ You have access to all Pro resources!', 'pro');
+                    unlockAllResources();
+                } else {
+                    showStatus('Upgrade to Pro to unlock all premium resources', 'free');
+                    lockAllResources();
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.textContent = message;
+            statusMsg.className = `status-message show status-${type}`;
+        }
+
+        function lockAllResources() {
+            document.querySelectorAll('.resource-item').forEach(item => {
+                item.classList.add('locked');
+                item.style.opacity = '0.6';
+            });
+        }
+
+        function unlockAllResources() {
+            document.querySelectorAll('.resource-item').forEach(item => {
+                item.classList.remove('locked');
+                item.style.opacity = '1';
+            });
+        }
+
+        window.addEventListener('load', loadResourcesStatus);
+    </script>
+</body>
+</html>
