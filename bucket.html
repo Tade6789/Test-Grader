@@ -50,12 +50,13 @@
         .plan-card {
             background: white;
             border-radius: 15px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
             position: relative;
+            min-height: 450px;
         }
 
         .plan-card:hover {
@@ -128,7 +129,7 @@
         .plan-features {
             padding: 2rem 1.5rem;
             flex-grow: 1;
-            min-height: 300px;
+            overflow: visible;
         }
 
         .feature-list {
