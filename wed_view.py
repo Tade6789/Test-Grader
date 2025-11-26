@@ -416,6 +416,24 @@ def api_docs_page():
     except:
         return render_template('api.html')
 
+@app.route('/student')
+def student_page():
+    """Serve the add student page"""
+    try:
+        with open('student.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('student.html')
+
+@app.route('/chat')
+def chat_page():
+    """Serve the 24/7 chat support page"""
+    try:
+        with open('chat.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('chat.html')
+
 @app.route('/stats')
 def stats_page():
     """Serve the statistics page"""

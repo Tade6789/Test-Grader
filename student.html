@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student - Test Grader</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        header h1 { color: #4c3f91; font-size: 2rem; margin-bottom: 0.5rem; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .card h2 { color: #4c3f91; margin-bottom: 1.5rem; border-bottom: 2px solid #4c3f91; padding-bottom: 0.5rem; }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #4c3f91;
+            border: 2px solid #4c3f91;
+        }
+        .btn-secondary:hover { background: #4c3f91; color: white; }
+        .success-msg { display: none; background: #e8f5e9; color: #2e7d32; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        .error-msg { display: none; background: #ffebee; color: #c62828; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        .students-list {
+            background: #f9f9f9;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        .student-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-info { flex: 1; }
+        .student-name { font-weight: 600; color: #333; }
+        .student-email { font-size: 0.9rem; color: #666; }
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-delete:hover { background: #ff5252; }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .nav-buttons a {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #4c3f91;
+            color: #4c3f91;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .nav-buttons a:hover { background: #4c3f91; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Add Student</h1>
+            <p>Manage your class roster</p>
+        </header>
+
+        <div class="card">
+            <div class="success-msg" id="successMsg">✓ Student added successfully!</div>
+            <div class="error-msg" id="errorMsg"></div>
+
+            <h2>📋 Add New Student</h2>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="studentName">Student Name *</label>
+                    <input type="text" id="studentName" placeholder="Enter full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentEmail">Email Address *</label>
+                    <input type="email" id="studentEmail" placeholder="student@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentGrade">Grade Level</label>
+                    <select id="studentGrade">
+                        <option value="">Select grade...</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                        <option value="College">College</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentSubject">Subject</label>
+                    <input type="text" id="studentSubject" placeholder="e.g., Math, Science, English">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentNotes">Notes</label>
+                    <textarea id="studentNotes" rows="3" placeholder="Add any additional notes..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">➕ Add Student</button>
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📚 Student Roster</h2>
+            <div class="students-list" id="studentsList">
+                <p style="text-align: center; color: #999;">No students added yet</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/teacher">← Back to Console</a>
+            <a href="/chat">💬 24/7 Support</a>
+            <a href="/account">👤 My Profile</a>
+        </div>
+    </div>
+
+    <script>
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+
+        function renderStudents() {
+            const list = document.getElementById('studentsList');
+            if (students.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999;">No students added yet</p>';
+                return;
+            }
+            
+            list.innerHTML = students.map((s, i) => `
+                <div class="student-item">
+                    <div class="student-info">
+                        <div class="student-name">${s.name}</div>
+                        <div class="student-email">${s.email}</div>
+                        <div style="font-size: 0.85rem; color: #888; margin-top: 0.3rem;">
+                            ${s.grade ? `Grade: ${s.grade} • ` : ''}${s.subject || 'No subject'}
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteStudent(${i})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteStudent(index) {
+            if (confirm('Delete this student?')) {
+                students.splice(index, 1);
+                localStorage.setItem('students', JSON.stringify(students));
+                renderStudents();
+            }
+        }
+
+        document.getElementById('studentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const student = {
+                name: document.getElementById('studentName').value,
+                email: document.getElementById('studentEmail').value,
+                grade: document.getElementById('studentGrade').value,
+                subject: document.getElementById('studentSubject').value,
+                notes: document.getElementById('studentNotes').value,
+                addedAt: new Date().toLocaleString()
+            };
+
+            students.push(student);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            document.getElementById('studentForm').reset();
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => document.getElementById('successMsg').style.display = 'none', 3000);
+            
+            renderStudents();
+        });
+
+        renderStudents();
+    </script>
+</body>
+</html>
