@@ -12,3 +12,16 @@ stripe
 requests
 stripe
 reportlab
+flask
+flask-cors
+flask-login
+flask-sqlalchemy
+flask-wtf
+matplotlib
+numpy
+psycopg2-binary
+reportlab
+requests
+sqlalchemy
+stripe
+werkzeug
