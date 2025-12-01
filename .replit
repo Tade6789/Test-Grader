@@ -55,6 +55,10 @@ externalPort = 3003
 localPort = 41593
 externalPort = 3002
 
+[[ports]]
+localPort = 42909
+externalPort = 5000
+
 [deployment]
 deploymentTarget = "autoscale"
 run = ["python", "wed_view.py"]
