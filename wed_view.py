@@ -966,14 +966,16 @@ if __name__ == '__main__':
                 'email': 'demo@testgrader.com',
                 'name': 'Demo Teacher',
                 'password': 'demo123456',
-                'plan': 'free'
+                'plan': 'free',
+                'is_admin': False
             },
             {
                 'username': 'tade',
                 'email': 'tade@gru.com',
                 'name': 'Tade (Pro User)',
                 'password': 'propass123',
-                'plan': 'pro'
+                'plan': 'pro',
+                'is_admin': True
             }
         ]
         
@@ -985,10 +987,16 @@ if __name__ == '__main__':
                     email=user_data['email'],
                     name=user_data['name'],
                     password_hash=generate_password_hash(user_data['password']),
-                    plan=user_data['plan']
+                    plan=user_data['plan'],
+                    is_admin=user_data.get('is_admin', False)
                 )
                 db.session.add(new_user)
                 print(f"Created user: {user_data['email']} ({user_data['plan']} plan)")
+            else:
+                # Update admin status for existing users
+                if user_data.get('is_admin') and not existing_user.is_admin:
+                    existing_user.is_admin = True
+                    print(f"Updated {user_data['email']} to admin")
         
         db.session.commit()
     
