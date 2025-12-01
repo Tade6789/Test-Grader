@@ -602,6 +602,66 @@ def get_account():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/cleanup-reports', methods=['POST'])
+@login_required
+def cleanup_reports():
+    """Clean up old grade reports - admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        old_reports = GradeReport.query.filter(GradeReport.timestamp < thirty_days_ago).all()
+        count = len(old_reports)
+        
+        for report in old_reports:
+            db.session.delete(report)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'cleaned': count})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/compact-db', methods=['POST'])
+@login_required
+def compact_db():
+    """Compact database - admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Database compacted'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/db-stats')
+@login_required
+def db_stats():
+    """Get database statistics - admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        users_count = DbUser.query.count()
+        reports_count = GradeReport.query.count()
+        admin_count = DbUser.query.filter_by(is_admin=True).count()
+        paid_count = DbUser.query.filter(DbUser.plan.in_(['pro', 'classic'])).count()
+        
+        return jsonify({
+            'users_count': users_count,
+            'reports_count': reports_count,
+            'admin_count': admin_count,
+            'paid_count': paid_count
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/verify-stripe-session', methods=['POST'])
 def verify_stripe_session():
     """Verify Stripe session and mark user as upgraded to pro"""
