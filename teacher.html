@@ -359,6 +359,7 @@
             <button class="nav-btn" onclick="location.href='/api-docs'">📡 API</button>
             <button class="nav-btn" onclick="location.href='/database'">🗄️ Database</button>
             <button class="nav-btn" onclick="location.href='/'">Download Page</button>
+            <button class="nav-btn" id="adminBtn" onclick="location.href='/admin'" style="display: none; background: linear-gradient(135deg, #f5af19, #f12711); border-color: #f5af19;">🔐 Admin Console</button>
             <button class="nav-btn" onclick="logout()">Logout</button>
         </div>
 
@@ -625,6 +626,10 @@
                         }
                     } else {
                         document.getElementById('upgradeCard').style.display = 'block';
+                    }
+                    
+                    if (data.is_admin) {
+                        document.getElementById('adminBtn').style.display = 'inline-block';
                     }
                 }
             } catch (error) {
