@@ -350,6 +350,7 @@
         </header>
 
         <div class="nav-buttons">
+            <button class="nav-btn" id="adminBtn" onclick="location.href='/admin'" style="display: none; background: linear-gradient(135deg, #f5af19, #f12711); border-color: #f5af19;">🔐 Admin Console</button>
             <button class="nav-btn" onclick="location.href='/chat'">💬 24/7 Chat</button>
             <button class="nav-btn" onclick="location.href='/account'">👤 My Profile</button>
             <button class="nav-btn" onclick="logout()">Logout</button>
@@ -620,6 +621,9 @@
                         document.getElementById('upgradeCard').style.display = 'block';
                     }
                     
+                    if (data.is_admin) {
+                        document.getElementById('adminBtn').style.display = 'inline-block';
+                    }
                 }
             } catch (error) {
                 console.error('Error checking user plan:', error);
