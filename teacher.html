@@ -350,16 +350,9 @@
         </header>
 
         <div class="nav-buttons">
-            <button class="nav-btn active" onclick="showSection('grading')">Grade Students</button>
-            <button class="nav-btn" onclick="showSection('history')">View History</button>
-            <button class="nav-btn pro-only" id="proAnalyticsBtn" onclick="showSection('analytics')" style="display: none;">📈 Pro Analytics</button>
-            <button class="nav-btn" onclick="location.href='/student'">👥 Add Student</button>
+            <button class="nav-btn" id="adminBtn" onclick="location.href='/admin'" style="display: none; background: linear-gradient(135deg, #f5af19, #f12711); border-color: #f5af19;">🔐 Admin Console</button>
             <button class="nav-btn" onclick="location.href='/chat'">💬 24/7 Chat</button>
             <button class="nav-btn" onclick="location.href='/account'">👤 My Profile</button>
-            <button class="nav-btn" onclick="location.href='/api-docs'">📡 API</button>
-            <button class="nav-btn" onclick="location.href='/database'">🗄️ Database</button>
-            <button class="nav-btn" onclick="location.href='/'">Download Page</button>
-            <button class="nav-btn" id="adminBtn" onclick="location.href='/admin'" style="display: none; background: linear-gradient(135deg, #f5af19, #f12711); border-color: #f5af19;">🔐 Admin Console</button>
             <button class="nav-btn" onclick="logout()">Logout</button>
         </div>
 
