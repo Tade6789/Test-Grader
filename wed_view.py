@@ -471,6 +471,115 @@ def account_page():
     except:
         return render_template('account.html')
 
+@app.route('/admin')
+@login_required
+def admin_page():
+    """Serve the admin console page"""
+    db_user = DbUser.query.get(int(current_user.id))
+    if not db_user or not db_user.is_admin:
+        return redirect(url_for('index'))
+    try:
+        with open('admin.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except:
+        return render_template('admin.html')
+
+@app.route('/api/admin/users')
+@login_required
+def get_all_users():
+    """Get all users - Admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        users = DbUser.query.order_by(DbUser.created_at.desc()).all()
+        return jsonify({
+            'users': [{
+                'id': u.id,
+                'name': u.name,
+                'email': u.email,
+                'phone': u.phone,
+                'plan': u.plan or 'free',
+                'is_admin': u.is_admin,
+                'created_at': u.created_at.isoformat() if u.created_at else None
+            } for u in users]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/create-account', methods=['POST'])
+@login_required
+def admin_create_account():
+    """Create a new account - Admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        phone = data.get('phone', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        plan = data.get('plan', 'classic')
+        paid = data.get('paid', True)
+        
+        if not name or not email or not password:
+            return jsonify({'error': 'Name, email, and password are required'}), 400
+        
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        existing = DbUser.query.filter_by(email=email).first()
+        if existing:
+            return jsonify({'error': 'Email already registered'}), 409
+        
+        new_user = DbUser(
+            username=email.split('@')[0],
+            email=email,
+            name=name,
+            phone=phone,
+            password_hash=generate_password_hash(password),
+            plan=plan if paid else 'free',
+            is_admin=False
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Account created for {name}',
+            'user': new_user.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@login_required
+def admin_delete_user(user_id):
+    """Delete a user - Admin only"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user or not db_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        user_to_delete = DbUser.query.get(user_id)
+        if not user_to_delete:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if user_to_delete.is_admin:
+            return jsonify({'error': 'Cannot delete admin users'}), 403
+        
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'User deleted'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/account')
 def get_account():
     """Get user account information"""
@@ -484,8 +593,10 @@ def get_account():
                 'id': str(db_user.id),
                 'name': db_user.name,
                 'email': db_user.email,
+                'phone': db_user.phone,
                 'plan': db_user.plan or 'free',
-                'stripe_customer_id': db_user.stripe_customer_id
+                'stripe_customer_id': db_user.stripe_customer_id,
+                'is_admin': db_user.is_admin
             })
         return jsonify({'error': 'User not found'}), 404
     except Exception as e:
