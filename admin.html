@@ -79,6 +79,27 @@
         <div class="content">
             <div class="card">
                 <div class="card-header">
+                    <h2>🗄️ Database Management</h2>
+                </div>
+                <div class="card-body">
+                    <div class="message error" id="dbErrorMessage"></div>
+                    <div class="message success" id="dbSuccessMessage"></div>
+                    
+                    <p style="margin-bottom: 1rem; color: #666;">Manage database records and cleanup unnecessary data</p>
+                    
+                    <button onclick="cleanupGradeReports()" style="background: linear-gradient(135deg, #ff9999 0%, #ff6b6b 100%);">🧹 Clean Old Grade Reports</button>
+                    <button onclick="compactDatabase()" style="background: linear-gradient(135deg, #ffb347 0%, #ff8c42 100%);">📊 Compact Database</button>
+                    <button onclick="showDatabaseStats()" style="background: linear-gradient(135deg, #87ceeb 0%, #4682b4 100%);">📈 Database Stats</button>
+                    
+                    <div id="dbStats" style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; display: none;">
+                        <h4 style="margin-bottom: 0.5rem; color: #4c3f91;">Database Statistics:</h4>
+                        <p id="statsContent" style="color: #666; font-size: 0.9rem;"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
                     <h2>➕ Create Custom Account</h2>
                 </div>
                 <div class="card-body">
@@ -253,6 +274,71 @@
         async function logout() {
             await fetch('/api/logout', { method: 'POST' });
             window.location.href = '/auth';
+        }
+
+        async function cleanupGradeReports() {
+            try {
+                const response = await fetch('/api/cleanup-reports', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    showDbMessage('success', `Cleaned up ${data.cleaned} old grade reports`);
+                    await loadUsers();
+                } else {
+                    showDbMessage('error', data.error || 'Cleanup failed');
+                }
+            } catch (error) {
+                showDbMessage('error', error.message);
+            }
+        }
+
+        async function compactDatabase() {
+            try {
+                const response = await fetch('/api/compact-db', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    showDbMessage('success', 'Database compacted successfully');
+                } else {
+                    showDbMessage('error', data.error || 'Compact failed');
+                }
+            } catch (error) {
+                showDbMessage('error', error.message);
+            }
+        }
+
+        async function showDatabaseStats() {
+            try {
+                const response = await fetch('/api/db-stats');
+                const data = await response.json();
+                const statsDiv = document.getElementById('dbStats');
+                const content = document.getElementById('statsContent');
+                
+                let stats = `Total Users: <strong>${data.users_count}</strong><br>Total Grade Reports: <strong>${data.reports_count}</strong><br>Admin Users: <strong>${data.admin_count}</strong><br>Paid Users: <strong>${data.paid_count}</strong>`;
+                
+                content.innerHTML = stats;
+                statsDiv.style.display = 'block';
+            } catch (error) {
+                showDbMessage('error', 'Failed to load stats: ' + error.message);
+            }
+        }
+
+        function showDbMessage(type, text) {
+            const errorEl = document.getElementById('dbErrorMessage');
+            const successEl = document.getElementById('dbSuccessMessage');
+            
+            if (type === 'error') {
+                errorEl.textContent = text;
+                errorEl.classList.add('show');
+                successEl.classList.remove('show');
+            } else {
+                successEl.textContent = text;
+                successEl.classList.add('show');
+                errorEl.classList.remove('show');
+            }
+            
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+                successEl.classList.remove('show');
+            }, 4000);
         }
 
         document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
