@@ -603,26 +603,35 @@
 
         async function checkUserPlan() {
             try {
-                const response = await fetch('/api/account');
-                if (response.ok) {
-                    const data = await response.json();
-                    userPlan = data.plan || 'free';
+                const response = await fetch('/api/account', {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    console.error('API returned status:', response.status);
+                    return;
+                }
+                
+                const data = await response.json();
+                userPlan = data.plan || 'free';
+                
+                if (userPlan === 'pro' || userPlan === 'enterprise') {
+                    document.getElementById('userPlanBadge').style.display = 'block';
+                    document.getElementById('proAnalyticsBtn').style.display = 'inline-block';
+                    document.getElementById('upgradeCard').style.display = 'none';
                     
-                    if (userPlan === 'pro' || userPlan === 'enterprise') {
-                        document.getElementById('userPlanBadge').style.display = 'block';
-                        document.getElementById('proAnalyticsBtn').style.display = 'inline-block';
-                        document.getElementById('upgradeCard').style.display = 'none';
-                        
-                        if (userPlan === 'enterprise') {
-                            document.getElementById('planBadge').textContent = '🏆 ENTERPRISE USER';
-                            document.getElementById('planBadge').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-                        }
-                    } else {
-                        document.getElementById('upgradeCard').style.display = 'block';
+                    if (userPlan === 'enterprise') {
+                        document.getElementById('planBadge').textContent = '🏆 ENTERPRISE USER';
+                        document.getElementById('planBadge').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
                     }
-                    
-                    if (data.is_admin) {
-                        document.getElementById('adminBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('upgradeCard').style.display = 'block';
+                }
+                
+                if (data.is_admin) {
+                    const adminBtn = document.getElementById('adminBtn');
+                    if (adminBtn) {
+                        adminBtn.style.display = 'inline-block';
                     }
                 }
             } catch (error) {
