@@ -60,6 +60,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    messages = db.relationship('ChatMessage', backref='user', lazy=True, cascade='all, delete-orphan')
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -69,5 +71,23 @@ class User(db.Model):
             'phone': self.phone,
             'plan': self.plan,
             'is_admin': self.is_admin,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class ChatMessage(db.Model):
+    """Model for storing 24/7 support chat messages"""
+    __tablename__ = 'chat_messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sender_type = db.Column(db.String(20), default='user')  # 'user' or 'support'
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sender_type': self.sender_type,
+            'message': self.message,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
