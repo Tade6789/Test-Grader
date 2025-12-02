@@ -12,6 +12,32 @@
             min-height: 100vh;
             padding: 20px;
         }
+        .login-container { max-width: 500px; margin: 50px auto; }
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .login-box h1 { color: #4c3f91; margin-bottom: 1rem; font-size: 1.8rem; }
+        .login-box p { color: #666; margin-bottom: 2rem; }
+        .outlook-btn {
+            background: linear-gradient(135deg, #0078d4, #107c10);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .outlook-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,120,212,0.3);
+        }
         .container { max-width: 700px; margin: 0 auto; }
         header {
             background: white;
@@ -151,11 +177,25 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="loginContainer" class="login-container" style="display: none;">
+        <div class="login-box">
+            <h1>💬 24/7 Support Chat</h1>
+            <p>Sign in with your Outlook email to access support</p>
+            <button class="outlook-btn" onclick="loginWithOutlook()">
+                🔒 Sign in with Outlook
+            </button>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;">
+                Only for custom account holders
+            </p>
+        </div>
+    </div>
+
+    <div class="container" id="chatContainer" style="display: none;">
         <header>
             <h1>💬 24/7 Support Chat</h1>
             <p>Get help anytime with our support team</p>
             <div class="status online">Online - Ready to Help</div>
+            <button onclick="logout()" style="background: #e94560; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-top: 1rem;">Logout</button>
         </header>
 
         <div class="chat-container">
@@ -194,19 +234,72 @@
     <script>
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('messageInput');
+        const loginContainer = document.getElementById('loginContainer');
+        const chatContainer = document.getElementById('chatContainer');
+
+        async function loginWithOutlook() {
+            // Simulate Outlook login - in production, use OAuth
+            const email = prompt('Enter your Outlook email:');
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/chat/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('userEmail', email);
+                    showChat();
+                    loadMessages();
+                } else {
+                    alert(data.error || 'Only custom account holders can access chat');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        }
+
+        function showChat() {
+            loginContainer.style.display = 'none';
+            chatContainer.style.display = 'block';
+        }
+
+        function showLogin() {
+            loginContainer.style.display = 'block';
+            chatContainer.style.display = 'none';
+        }
+
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/chat/messages');
+                if (response.ok) {
+                    const data = await response.json();
+                    messagesDiv.innerHTML = '';
+                    data.messages.forEach(msg => {
+                        addMessage(msg.message, msg.sender_type);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
 
         const responses = [
-            "Thanks for reaching out! How can I help you today?",
-            "Great question! Let me help you with that.",
-            "I understand. Can you provide more details?",
-            "Our team is looking into this. We'll get back to you shortly.",
-            "Is there anything else I can help you with?",
+            "Thanks for reaching out! Our support team will respond soon.",
+            "We appreciate you contacting us!",
+            "Your message has been received. We'll help you shortly.",
+            "Is there anything else we can assist you with?",
             "Thanks for using Test Grader! 🎓",
-            "We appreciate your feedback!",
-            "Please check our FAQ or documentation for more info.",
         ];
 
-        function sendMessage() {
+        async function sendMessage() {
             const text = messageInput.value.trim();
             if (!text) return;
 
@@ -214,11 +307,24 @@
             addMessage(text, 'user');
             messageInput.value = '';
 
-            // Auto-response after delay
-            setTimeout(() => {
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                addMessage(randomResponse, 'bot');
-            }, 800);
+            try {
+                const response = await fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Add support response after delay
+                    setTimeout(() => {
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        addMessage(randomResponse, 'support');
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
         }
 
         function addMessage(text, sender) {
@@ -240,8 +346,26 @@
             return div.innerHTML;
         }
 
+        async function logout() {
+            localStorage.removeItem('userEmail');
+            await fetch('/api/logout', { method: 'POST' });
+            showLogin();
+            messagesDiv.innerHTML = '';
+        }
+
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
+        });
+
+        // Check if user is logged in on page load
+        window.addEventListener('load', () => {
+            const email = localStorage.getItem('userEmail');
+            if (email) {
+                showChat();
+                loadMessages();
+            } else {
+                showLogin();
+            }
         });
     </script>
 </body>
