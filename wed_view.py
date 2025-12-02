@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 import os
 import stripe
-from models import db, GradeReport, GradeServer, User as DbUser
+from models import db, GradeReport, GradeServer, User as DbUser, ChatMessage
 
 app = Flask(__name__, template_folder='.', static_folder='.')
 CORS(app)
@@ -660,6 +660,77 @@ def db_stats():
             'paid_count': paid_count
         })
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/login', methods=['POST'])
+def chat_login():
+    """Login to chat - only for custom account holders (classic/pro plans)"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        
+        if not email or not password:
+            return jsonify({'error': 'Email and password required'}), 400
+        
+        db_user = DbUser.query.filter_by(email=email).first()
+        
+        if not db_user or not check_password_hash(db_user.password_hash, password):
+            return jsonify({'error': 'Invalid email or password'}), 401
+        
+        if db_user.plan not in ['classic', 'pro', 'admin', 'enterprise']:
+            return jsonify({'error': 'Only custom account holders (Classic/Pro) can access 24/7 chat'}), 403
+        
+        user = User(db_user.id, db_user.email, db_user.name, db_user.plan, db_user.stripe_customer_id)
+        login_user(user)
+        
+        return jsonify({'success': True, 'email': db_user.email, 'plan': db_user.plan})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/messages')
+@login_required
+def get_chat_messages():
+    """Get chat messages for current user"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        messages = ChatMessage.query.filter_by(user_id=db_user.id).order_by(ChatMessage.created_at.asc()).all()
+        
+        return jsonify({
+            'messages': [msg.to_dict() for msg in messages]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/send', methods=['POST'])
+@login_required
+def send_chat_message():
+    """Send a chat message"""
+    try:
+        db_user = DbUser.query.get(int(current_user.id))
+        if not db_user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json()
+        message_text = data.get('message', '').strip()
+        
+        if not message_text:
+            return jsonify({'error': 'Message cannot be empty'}), 400
+        
+        new_message = ChatMessage(
+            user_id=db_user.id,
+            sender_type='user',
+            message=message_text
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message_id': new_message.id})
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/verify-stripe-session', methods=['POST'])

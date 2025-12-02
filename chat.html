@@ -180,13 +180,18 @@
     <div id="loginContainer" class="login-container" style="display: none;">
         <div class="login-box">
             <h1>💬 24/7 Support Chat</h1>
-            <p>Sign in with your Outlook email to access support</p>
-            <button class="outlook-btn" onclick="loginWithOutlook()">
-                🔒 Sign in with Outlook
+            <p>Sign in to access 24/7 support</p>
+            <div style="margin-bottom: 1rem;">
+                <input type="email" id="loginEmail" placeholder="Enter your email" style="width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 0.8rem;">
+                <input type="password" id="loginPassword" placeholder="Enter your password" style="width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
+            </div>
+            <button class="outlook-btn" onclick="loginToChat()">
+                🔒 Sign In to Chat
             </button>
             <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;">
-                Only for custom account holders
+                Only for custom account holders (Classic/Pro plans)
             </p>
+            <div id="loginError" style="color: #e94560; margin-top: 1rem; display: none;"></div>
         </div>
     </div>
 
@@ -237,11 +242,20 @@
         const loginContainer = document.getElementById('loginContainer');
         const chatContainer = document.getElementById('chatContainer');
 
-        async function loginWithOutlook() {
-            // Simulate Outlook login - in production, use OAuth
-            const email = prompt('Enter your Outlook email:');
+        async function loginToChat() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
             if (!email || !email.includes('@')) {
-                alert('Please enter a valid email address');
+                errorDiv.textContent = 'Please enter a valid email address';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!password) {
+                errorDiv.textContent = 'Please enter your password';
+                errorDiv.style.display = 'block';
                 return;
             }
 
@@ -249,20 +263,23 @@
                 const response = await fetch('/api/chat/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
                 if (data.success) {
                     localStorage.setItem('userEmail', email);
+                    errorDiv.style.display = 'none';
                     showChat();
                     loadMessages();
                 } else {
-                    alert(data.error || 'Only custom account holders can access chat');
+                    errorDiv.textContent = data.error || 'Only custom account holders can access chat';
+                    errorDiv.style.display = 'block';
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Login failed. Please try again.');
+                errorDiv.textContent = 'Login failed. Please try again.';
+                errorDiv.style.display = 'block';
             }
         }
 
